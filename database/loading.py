@@ -3,20 +3,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
+from streamlit_utils import create_sqlalchemy_session
+
 import os
 import numpy as np 
 
 from database.sqlalchemy_model import Playlist, Songs, PlaylistSongs, Artist, ArtistGenre, SongArtist
 
-def create_sqlalchemy_session():
-    load_dotenv()
-    username = 'Toomeh'
-    password = os.getenv('DB_PASSWORD')
-    dbname = 'spotify_db'
-    engine = create_engine(f'mysql+pymysql://{username}:{password}@localhost/{dbname}')
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+# def create_sqlalchemy_session():
+#     username = 'Toomeh'
+#     password = os.getenv('DB_PASSWORD')
+#     dbname = 'spotify_db'
+#     engine = create_engine(f'mysql+pymysql://{username}:{password}@localhost/{dbname}')
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
+#     return session
 
 def load_playlists_data(session, playlists_data):
     n_playlists = len(playlists_data['playlist_id'])

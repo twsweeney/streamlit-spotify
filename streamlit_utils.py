@@ -8,9 +8,8 @@ import boto3
 from botocore.exceptions import ClientError
 import requests
 
-def get_secret():
+def get_secret(secret_name:str):
 
-    secret_name = "spotify_client_secret"
     region_name = "us-east-2"
 
     # Create a Secrets Manager client
