@@ -1,5 +1,6 @@
 import streamlit as st 
 import pandas as pd 
+import numpy as np 
 import os
 import json
 from sqlalchemy import text, create_engine
@@ -151,3 +152,36 @@ def check_if_user_exists(session:Session, user_id:str) -> bool:
         return True
 
 
+def display_feature_description(feature:str):
+    '''Display a dropdown that can be expanded to show the definition of each feature'''
+    feature_to_description = {
+        'popularity':'The popularity of a track is a value between 0 and 100, with 100 being the most popular. The popularity is calculated by algorithm and is based, in the most part, on the total number of plays the track has had and how recent those plays are.', 
+        'acousticness':'A confidence measure from 0.0 to 1.0 of whether the track is acoustic.', 
+        'danceability':'Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.', 
+        'energy':'Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy.', 
+        'instrumentalness':'Predicts whether a track contains no vocals. "Ooh" and "aah" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly "vocal". The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. ', 
+        'liveness':'Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live.', 
+        'loudness':'The overall loudness of a track in decibels (dB). Values closer to zero are louder, for example -5dB is louder than -10dB.',
+        'speechiness':'Speechiness detects the presence of spoken words in a track.', 
+        'tempo':'The overall estimated tempo of a track in beats per minute (BPM). ', 
+        'valence':'A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).'
+    }
+    with st.expander("Click here to see details about the selected feature"):
+        st.write(feature_to_description[feature])
+
+def draw_feature_selectbox():
+    '''Display the feature selectbox'''
+    features = ['popularity', 'acousticness', 'danceability', 
+             'energy', 'instrumentalness', 'liveness', 'loudness',
+             'speechiness', 'tempo', 'valence']
+    label = 'What feature would you like to see?'
+    option = st.selectbox(label=label, options=features)
+    return option
+
+
+def freedman_diaconis_rule(data):
+    '''implements the fd rule to determine the number of bins to draw in a histogram'''
+    q75, q25 = np.percentile(data, [75, 25])
+    iqr = q75 - q25
+    bin_width = 2 * iqr * len(data) ** (-1/3)  
+    return int(np.ceil((data.max() - data.min()) / bin_width))

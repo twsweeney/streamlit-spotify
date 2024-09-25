@@ -1,12 +1,15 @@
 import streamlit as st 
 from streamlit_utils import * 
-
+import plotly.express as px 
 
 
 def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
 
     get_playlist_averages_query = f'''
-    SELECT p.name, AVG(s.popularity) AS average_popularity
+    SELECT p.name AS playlist_name, AVG(s.popularity) AS average_popularity, AVG(s.acousticness) AS average_acousticness, AVG(s.danceability) AS average_danceability, 
+                AVG(s.energy) AS average_energy, AVG(s.instrumentalness) AS average_instrumentalness, AVG(s.liveness) AS average_liveness, AVG(s.loudness) AS average_loudness,
+                AVG(s.speechiness) AS average_speechiness, AVG(s.tempo) AS average_tempo, AVG(s.valence) AS average_valence
+    
     FROM playlists AS p 
     JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
     JOIN songs AS s ON ps.song_id=s.song_id
@@ -19,7 +22,25 @@ def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
     return df 
 
 
+def get_selected_feature_df(playlist_averages_df, selected_feature) -> pd.DataFrame:
+    selected_feature_df = playlist_averages_df[['playlist_name', selected_feature]].sort_values(by=selected_feature, ascending=False)
+    return selected_feature_df
 
+
+def display_feature_histogram(selected_feature_df, selected_feature):
+    bin_count = 20
+
+    fig = px.histogram(selected_feature_df, x=selected_feature,  histnorm='probability',
+                       barmode='overlay', nbins=bin_count,
+                       color_discrete_sequence=['orange', 'blue'])
+    fig.update_layout(
+    title=f"Normalized Histogram of {selected_feature}",
+    xaxis_title=selected_feature,
+    yaxis_title="Percentage of Total Playlists",
+    bargap=0.1,  # Adjust gap between bars
+    template="plotly_white"
+    )
+    return fig
 
 
 
@@ -37,8 +58,29 @@ def main():
 
 
         playlist_averages_df = get_playlist_averages(session, current_user_id)
+        selected_feature = draw_feature_selectbox()
+        display_feature_description(selected_feature)
+        selected_feature_df = get_selected_feature_df(playlist_averages_df, selected_feature)
 
-        st.write(playlist_averages_df)
+        fig = display_feature_histogram(selected_feature_df, selected_feature)
+
+        st.plotly_chart(fig)
+
+        max_playlist = selected_feature_df.iloc[0]['Playlist Name']  
+        min_playlist = selected_feature_df.iloc[-1]['Playlist Name']  
+
+        # Get the corresponding values of the selected feature
+        max_value = selected_feature_df.iloc[0]['Selected Feature']
+        min_value = selected_feature_df.iloc[-1]['Selected Feature']
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(f'{min_playlist} has the lowest value of {selected_feature}, with a value of {round(min_value, 3)}')
+        with col2:
+            st.metric(f'{max_playlist} has the highest value of {selected_feature}, with a value of {round(max_value, 3)}')
+
+        with st.expander(f"Clich to see all of the data for {selected_feature}", expanded=False):
+            st.write(selected_feature_df)
+        
 
 
         

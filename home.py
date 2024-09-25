@@ -92,7 +92,7 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
 def main():
     
     # Usage in Streamlit
-    st.markdown(" # Welcome to my Playlist analysis app!")
+    st.markdown(" # Welcome to my Spotify Playlist analysis app!")
     st.markdown('To see your stats, authenticate through spotify with the link below!')
     st.markdown('Feel free to check out the "about" page in the sidebar for more information about this site!')
     
@@ -107,15 +107,15 @@ def main():
         st.session_state['display_name'] = spotify_api.display_name
         st.session_state['user_id'] = spotify_api.user_id
         
-        status_text = st.text('Searching for you in the database...')
+        status_text = st.markdown('Searching for you in the database...')
         session = create_sqlalchemy_session()
         user_exists = check_if_user_exists(session, spotify_api.user_id)
         session.close()
         # function returns a bool of if the user is in db or not
         if user_exists:
-            status_text.text('You are in the database! Feel free to update your data by pressing the button below \n or move on to an analysis page on the sidebar!')
+            status_text.markdown('You are in the database! Feel free to update your data by pressing the button below \n or move on to an analysis page on the sidebar!')
         else:
-            status_text.text('No data found for you, please press the button below!')
+            status_text.markdown('No data found for you, please press the button below!')
 
 
         if st.button('Fetch Playlist data!'):
