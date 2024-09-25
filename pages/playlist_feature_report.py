@@ -30,8 +30,9 @@ def get_selected_feature_df(playlist_averages_df, selected_feature) -> pd.DataFr
 
 def display_feature_histogram(selected_feature_df, selected_feature):
     bin_count = 20
+    column_name = 'average_' + selected_feature 
 
-    fig = px.histogram(selected_feature_df, x=selected_feature,  histnorm='probability',
+    fig = px.histogram(selected_feature_df, x=column_name,  histnorm='probability',
                        barmode='overlay', nbins=bin_count,
                        color_discrete_sequence=['orange', 'blue'])
     fig.update_layout(
