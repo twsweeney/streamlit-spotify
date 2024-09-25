@@ -15,7 +15,7 @@ class SpotifyAPI:
         self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
 
         # public_ip = get_ec2_public_ip()
-        public_ip = '18.216.76.240'
+        public_ip = '3.139.10.179'
         if public_ip:
             self.REDIRECT_URI = f"http://{public_ip}:8501/"
         else:
