@@ -6,7 +6,6 @@ import os
 # from database.loading import create_sqlalchemy_session
 from sqlalchemy import text, create_engine
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 
 import plotly.graph_objects as go
 import plotly.express as px
