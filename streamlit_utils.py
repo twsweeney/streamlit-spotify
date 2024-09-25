@@ -1,6 +1,7 @@
 import streamlit as st 
 import pandas as pd 
 import os
+import json
 
 from sqlalchemy import text, create_engine
 from sqlalchemy.orm import sessionmaker
@@ -29,7 +30,7 @@ def get_secret(secret_name:str):
         raise e
 
     secret = get_secret_value_response['SecretString']
-    return secret
+    return json.loads(secret)
 
 def get_ec2_public_ip():
     try:

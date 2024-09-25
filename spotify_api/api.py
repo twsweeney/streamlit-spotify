@@ -11,11 +11,8 @@ from streamlit_utils import get_secret, get_ec2_public_ip
 class SpotifyAPI:
     def __init__(self):
         
-        spotify_client_secret_key_value = get_secret('spotify_client_secret')
         self.CLIENT_ID = '5ff1fe753a2b4587be0ff3e890cea92f'
-        print(type(spotify_client_secret_key_value))
-        print(len(spotify_client_secret_key_value))
-        self.CLIENT_SECRET = spotify_client_secret_key_value['spotify_client_secret']
+        self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
 
         public_ip = get_ec2_public_ip()
         if public_ip:
