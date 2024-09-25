@@ -14,7 +14,8 @@ class SpotifyAPI:
         self.CLIENT_ID = '5ff1fe753a2b4587be0ff3e890cea92f'
         self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
 
-        public_ip = get_ec2_public_ip()
+        # public_ip = get_ec2_public_ip()
+        public_ip = 'http://18.216.76.240:8501/'
         if public_ip:
             redirect_uri = f"http://{public_ip}:8501/callback"
             self.REDIRECT_URI = f"Redirect URI: {redirect_uri}"
