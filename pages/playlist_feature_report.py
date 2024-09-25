@@ -23,6 +23,7 @@ def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
 
 
 def get_selected_feature_df(playlist_averages_df, selected_feature) -> pd.DataFrame:
+    column_name = 'average_' + selected_feature 
     selected_feature_df = playlist_averages_df[['playlist_name', selected_feature]].sort_values(by=selected_feature, ascending=False)
     return selected_feature_df
 
