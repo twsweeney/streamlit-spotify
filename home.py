@@ -1,7 +1,5 @@
 import streamlit as st 
 import os
-from dotenv import load_dotenv
-from spotipy import SpotifyOAuth, CacheFileHandler
 from spotify_api.api import SpotifyAPI
 from spotify_api.utils import *
 from database.loading import *

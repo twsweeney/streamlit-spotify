@@ -5,14 +5,54 @@ import os
 from sqlalchemy import text, create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+import boto3
+from botocore.exceptions import ClientError
+import requests
+
+def get_secret():
+
+    secret_name = "spotify_client_secret"
+    region_name = "us-east-2"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return secret
+
+def get_ec2_public_ip():
+    try:
+        # Fetch public IP from EC2 metadata
+        public_ip = requests.get('http://169.254.169.254/latest/meta-data/public-ipv4').text
+        return public_ip
+    except requests.exceptions.RequestException as e:
+        st.error("Error fetching EC2 public IP.")
+        return None
 
 
 def create_sqlalchemy_session():
-    load_dotenv()
-    username = 'Toomeh'
-    password = os.getenv('DB_PASSWORD')
+    database_secret_name = 'rds!db-60329a4c-380a-4809-bcf5-2689a1a604c0'
+    database_credentials = get_secret(database_secret_name)
+
+
+    username = database_credentials['username']
+    password = database_credentials['password']
     dbname = 'spotify_db'
-    engine = create_engine(f'mysql+pymysql://{username}:{password}@localhost/{dbname}')
+    endpoint = 'streamlit-spotify-db.cv2w6ig8qy6y.us-east-2.rds.amazonaws.com'
+    engine = create_engine(f'mysql+pymysql://{username}:{password}@{endpoint}/{dbname}')
     Session = sessionmaker(bind=engine)
     session = Session()
     return session

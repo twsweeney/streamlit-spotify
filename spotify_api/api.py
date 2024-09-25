@@ -6,14 +6,24 @@ import hashlib
 import base64
 import random
 
-from dotenv import load_dotenv
+from streamlit_utils import get_secret, get_ec2_public_ip
 
 class SpotifyAPI:
     def __init__(self):
-        load_dotenv()    
-        self.CLIENT_ID = os.getenv('CLIENT_ID')
-        self.CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-        self.REDIRECT_URI = os.getenv('REDIRECT_URI')
+        
+        spotify_client_secret_key_value = get_secret('spotify_client_secret')
+        self.CLIENT_ID = '5ff1fe753a2b4587be0ff3e890cea92f'
+        self.CLIENT_SECRET = spotify_client_secret_key_value['spotify_client_secret']
+
+        public_ip = get_ec2_public_ip()
+        if public_ip:
+            redirect_uri = f"http://{public_ip}:8501/callback"
+            self.REDIRECT_URI = f"Redirect URI: {redirect_uri}"
+        else:
+            st.error("Could not retrieve public IP.")
+
+
+        # self.REDIRECT_URI = os.getenv('REDIRECT_URI')
         self.scope = "playlist-read-private"
 
         # Initialize the access token
