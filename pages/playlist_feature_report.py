@@ -34,7 +34,7 @@ def display_feature_histogram(selected_feature_df, selected_feature):
 
     fig = px.histogram(selected_feature_df, x=column_name,  histnorm='probability',
                        barmode='overlay', nbins=bin_count,
-                       color_discrete_sequence=['orange', 'blue'])
+                       color_discrete_sequence=['blue'])
     fig.update_layout(
     title=f"Normalized Histogram of {selected_feature}",
     xaxis_title=selected_feature,
@@ -68,12 +68,12 @@ def main():
 
         st.plotly_chart(fig)
 
-        max_playlist = selected_feature_df.iloc[0]['Playlist Name']  
-        min_playlist = selected_feature_df.iloc[-1]['Playlist Name']  
-
+        max_playlist = selected_feature_df.iloc[0]['playlist_name']  
+        min_playlist = selected_feature_df.iloc[-1]['playlist_name']  
+        column_name = 'average_' + selected_feature
         # Get the corresponding values of the selected feature
-        max_value = selected_feature_df.iloc[0]['Selected Feature']
-        min_value = selected_feature_df.iloc[-1]['Selected Feature']
+        max_value = selected_feature_df.iloc[0][column_name]
+        min_value = selected_feature_df.iloc[-1][column_name]
         col1, col2 = st.columns(2)
         with col1:
             st.metric(f'{min_playlist} has the lowest value of {selected_feature}, with a value of {round(min_value, 3)}')
