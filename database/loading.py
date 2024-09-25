@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, or_, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 
 import os

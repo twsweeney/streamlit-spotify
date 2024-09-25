@@ -4,7 +4,6 @@ import os
 
 from sqlalchemy import text, create_engine
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
 import requests
