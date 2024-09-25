@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 import boto3
 from botocore.exceptions import ClientError
 import requests
-from typing import Dict, Any, Bool
+from typing import Dict, Any
 
 
 def get_secret(secret_name:str) -> Dict[str, Any] :
@@ -133,7 +133,7 @@ def get_playlist_title(session, playlist_id):
     rows = result.fetchall()
     return rows[0][0]
 
-def check_if_user_exists(session:Session, user_id:str) -> Bool:
+def check_if_user_exists(session:Session, user_id:str) -> bool:
     '''Checks if the given user is found in the playlist table. 
     Returns true if the user is found in the database'''
     find_user_query = f'''
