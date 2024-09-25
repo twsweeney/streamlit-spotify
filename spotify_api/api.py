@@ -17,8 +17,7 @@ class SpotifyAPI:
         # public_ip = get_ec2_public_ip()
         public_ip = '18.216.76.240'
         if public_ip:
-            redirect_uri = f"http://{public_ip}:8501/callback"
-            self.REDIRECT_URI = f"Redirect URI: {redirect_uri}"
+            self.REDIRECT_URI = f"http://{public_ip}:8501/callback"
         else:
             st.error("Could not retrieve public IP.")
 
