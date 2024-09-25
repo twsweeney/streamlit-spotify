@@ -68,17 +68,17 @@ def main():
 
         st.plotly_chart(fig)
 
-        max_playlist = selected_feature_df.iloc[0]['playlist_name']  
-        min_playlist = selected_feature_df.iloc[-1]['playlist_name']  
-        column_name = 'average_' + selected_feature
-        # Get the corresponding values of the selected feature
-        max_value = selected_feature_df.iloc[0][column_name]
-        min_value = selected_feature_df.iloc[-1][column_name]
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric(f'{min_playlist} has the lowest value of {selected_feature}, with a value of:', {round(min_value, 3)})
-        with col2:
-            st.metric(f'{max_playlist} has the highest value of {selected_feature}, with a value of:' ,{round(max_value, 3)})
+        # max_playlist = selected_feature_df.iloc[0]['playlist_name']  
+        # min_playlist = selected_feature_df.iloc[-1]['playlist_name']  
+        # column_name = 'average_' + selected_feature
+        # # Get the corresponding values of the selected feature
+        # max_value = selected_feature_df.iloc[0][column_name]
+        # min_value = selected_feature_df.iloc[-1][column_name]
+        # col1, col2 = st.columns(2)
+        # with col1:
+        #     st.metric(f'{min_playlist} has the lowest value of {selected_feature}, with a value of:', {round(min_value, 3)})
+        # with col2:
+        #     st.metric(f'{max_playlist} has the highest value of {selected_feature}, with a value of:' ,{round(max_value, 3)})
 
         with st.expander(f"Clich to see all of the data for {selected_feature}", expanded=False):
             st.write(selected_feature_df)
