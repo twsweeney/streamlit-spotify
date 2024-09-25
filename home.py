@@ -3,6 +3,7 @@ import os
 from spotify_api.api import SpotifyAPI
 from spotify_api.utils import *
 from database.loading import *
+from streamlit_utils import check_if_user_exists
 import time
 
 
@@ -89,12 +90,12 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
     st.success("Data processing complete!")
 
 def main():
-    # st.session_state.clear()
     
     # Usage in Streamlit
-    st.title("Spotify API  Authentication")
+    st.title("Welcome to my Playlist analysis app!")
+    st.text('To see your stats, authenticate through spotify with the link below!')
+    st.text('Feel free to check out the "about" page in the sidebar for more information about this site!')
     
-    # print(f' session state: {st.session_state}')
 
     spotify_api = SpotifyAPI()
     spotify_api.handle_callback()  # Check for the callback and exchange the code for a token
@@ -102,10 +103,19 @@ def main():
     # Use the Spotify API methods as needed
     if spotify_api.access_token:
         spotify_api.initialize_after_auth()
-        user_info = spotify_api.get_current_user()
         st.write("Logged in as user:", spotify_api.display_name)
         st.session_state['display_name'] = spotify_api.display_name
         st.session_state['user_id'] = spotify_api.user_id
+        
+        status_text = st.text('Searching for you in the database...')
+        session = create_sqlalchemy_session()
+        user_exists = check_if_user_exists(session, spotify_api.user_id)
+        session.close()
+        # function returns a bool of if the user is in db or not
+        if user_exists:
+            status_text.text('You are in the database! Feel free to update your data by pressing the button below \n or move on to an analysis page on the sidebar!')
+        else:
+            status_text.text('No data found for you, please press the button below!')
 
 
         if st.button('Fetch Playlist data!'):

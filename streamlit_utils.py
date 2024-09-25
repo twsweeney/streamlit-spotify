@@ -2,14 +2,15 @@ import streamlit as st
 import pandas as pd 
 import os
 import json
-
 from sqlalchemy import text, create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session 
 import boto3
 from botocore.exceptions import ClientError
 import requests
+from typing import Dict, Any, Bool
 
-def get_secret(secret_name:str):
+
+def get_secret(secret_name:str) -> Dict[str, Any] :
 
     region_name = "us-east-2"
 
@@ -42,7 +43,7 @@ def get_ec2_public_ip():
         return None
 
 
-def create_sqlalchemy_session():
+def create_sqlalchemy_session() -> Session:
     database_secret_name = 'rds!db-60329a4c-380a-4809-bcf5-2689a1a604c0'
     database_credentials = get_secret(database_secret_name)
 
@@ -131,3 +132,22 @@ def get_playlist_title(session, playlist_id):
     result = session.execute(text(get_playlist_title_query))
     rows = result.fetchall()
     return rows[0][0]
+
+def check_if_user_exists(session:Session, user_id:str) -> Bool:
+    '''Checks if the given user is found in the playlist table. 
+    Returns true if the user is found in the database'''
+    find_user_query = f'''
+    SELECT DISTINCT app_user_id 
+    FROM playlists
+    WHERE app_user_id = {user_id}
+    '''
+    result = session.execute(text(find_user_query))
+
+    user = result.fetchone()
+    # if the query has returned nothing, this means the user is not in the DB and user will be set to None and we should return False
+    if not user:
+        return False
+    else:
+        return True
+
+

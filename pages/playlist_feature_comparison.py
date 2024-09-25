@@ -95,9 +95,9 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
                        barmode='overlay', nbins=bin_count,
                        color_discrete_sequence=['orange', 'blue'])
     fig.update_layout(
-    title=f"Normalized Histogram of {feature} with Dynamic Bins",
+    title=f"Normalized Histogram of {feature}",
     xaxis_title=feature,
-    yaxis_title="Probability",
+    yaxis_title="Percentage of Total",
     bargap=0.1,  # Adjust gap between bars
     template="plotly_white"
     )
