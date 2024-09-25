@@ -92,9 +92,9 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
 def main():
     
     # Usage in Streamlit
-    st.title("Welcome to my Playlist analysis app!")
-    st.text('To see your stats, authenticate through spotify with the link below!')
-    st.text('Feel free to check out the "about" page in the sidebar for more information about this site!')
+    st.markdown(" # Welcome to my Playlist analysis app!")
+    st.markdown('To see your stats, authenticate through spotify with the link below!')
+    st.markdown('Feel free to check out the "about" page in the sidebar for more information about this site!')
     
 
     spotify_api = SpotifyAPI()

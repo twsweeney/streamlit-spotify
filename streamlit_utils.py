@@ -139,7 +139,7 @@ def check_if_user_exists(session:Session, user_id:str) -> bool:
     find_user_query = f'''
     SELECT DISTINCT app_user_id 
     FROM playlists
-    WHERE app_user_id = {user_id}
+    WHERE app_user_id = '{user_id}';
     '''
     result = session.execute(text(find_user_query))
 
