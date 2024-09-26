@@ -1,4 +1,9 @@
 from streamlit_utils import *
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+from datetime import datetime, timedelta
+
 
 
 def get_song_df(session, current_user_id:str):
@@ -17,9 +22,54 @@ def get_song_df(session, current_user_id:str):
     result = session.execute(text(get_available_playlists_query))
     rows = result.fetchall()
     playlist_df = pd.DataFrame(rows, columns=result.keys())
+    playlist_df['added_date'] = pd.to_datetime(playlist_df['added_date'])
     return playlist_df 
 
+# Function to filter data based on selected time range
+def filter_data(df, days):
+    if days is not None:
+        start_date = datetime.now() - timedelta(days=days)
+        filtered_df = df[df['added_date'] >= start_date]
+    else:
+        filtered_df = df  # For "All time"
+    return filtered_df
 
+# Function to dynamically bin the dates based on the time range
+def dynamic_bins(df, days):
+    if days is None:  # For "All time"
+        bin_freq = 'M'  # Monthly bins
+    elif days <= 30:
+        bin_freq = 'D'  # Daily bins
+    elif days <= 90:
+        bin_freq = 'W'  # Weekly bins
+    elif days <= 180:
+        bin_freq = 'W'  # Weekly bins
+    elif days <= 365:
+        bin_freq = 'M'  # Monthly bins
+    else:
+        bin_freq = 'M'  # Monthly bins
+
+    # Create a new column for binning
+    df['date_bin'] = df['added_date'].dt.to_period(bin_freq).dt.to_timestamp()
+    return df
+
+# Function to calculate median popularity over time
+def calculate_median(df, selected_feature):
+    median_popularity = df.groupby('date_bin')[selected_feature].median().reset_index()
+    return median_popularity
+
+def draw_time_range_selector():
+        # Streamlit UI for selecting the time range
+    time_range_options = {
+        "Past month": 30,
+        "Past 3 months": 90,
+        "Past 6 months": 180,
+        "Past year": 365,
+        "All time": None
+    }
+    selected_range = st.selectbox("Select time range:", list(time_range_options.keys()))
+    days = time_range_options[selected_range]
+    return days
 
 def main():
 
@@ -36,7 +86,33 @@ def main():
 
         song_df = get_song_df(session, current_user_id)
 
-        st.write(song_df)
+        selected_feature = draw_feature_selectbox()
+        display_feature_description(selected_feature)
+        # Streamlit UI for selecting the time range
+        time_range_options = {
+            "Past month": 30,
+            "Past 3 months": 90,
+            "Past 6 months": 180,
+            "Past year": 365,
+            "All time": None
+        }
+        selected_range = st.selectbox("Select time range:", list(time_range_options.keys()))
+        days = time_range_options[selected_range]
+
+        # Filter and process the data
+        filtered_data = filter_data(song_df, days)
+        binned_data = dynamic_bins(filtered_data, days)
+        median_popularity_data = calculate_median(binned_data)
+
+        # Plot the result using Plotly
+        fig = px.line(median_popularity_data, x='date_bin', y=selected_feature,
+                    title=f'Median Song {selected_feature} over Time ({selected_range})',
+                    labels={'date_bin': 'Date Added', selected_feature: 'Median Popularity'})
+
+        # Display the plot
+        st.plotly_chart(fig)
+
+        # st.write(song_df)
 
 
 
