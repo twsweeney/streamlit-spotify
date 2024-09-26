@@ -1,7 +1,22 @@
 import streamlit as st 
+from database.loading import delete_playlist_data
 
 def main():
-    st.markdown('# Add info and references here ')
+    st.markdown('All data is collected through the "[Spotify Web API](https://developer.spotify.com/documentation/web-api})')
+
+    st.markdown('The only data that is stored by this application is the name of all of your saved playlists and their contents')
+
+    if 'user_id'  in st.session_state:
+
+        current_user_id = st.session_state['user_id']
+        current_user_display_name = st.session_state["display_name"]
+
+        st.markdown(f'Currently logged in as: {current_user_display_name}')
+
+        if st.button(f'Click to delete all playlist data associated with {current_user_display_name}. This cannot be undone!'):
+            delete_playlist_data(current_user_id)
+
+
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ from streamlit_utils import create_sqlalchemy_session
 
 import os
 import numpy as np 
+import streamlit as st
 
 from database.sqlalchemy_model import Playlist, Songs, PlaylistSongs, Artist, ArtistGenre, SongArtist
 
@@ -207,3 +208,15 @@ def load_song_artist_data(session, artist_data):
             # print(f"Artist {artist_data['name'][i]} added.")
         except IntegrityError:
             session.rollback()  # Rollback in case of an error
+
+
+def delete_playlist_data(session, app_user_id:str) -> None:
+    '''Deletes the playlist data for a given user_id'''
+    try:
+        # Query to delete playlists with the specified app_user_id
+        session.query(Playlist).filter(Playlist.app_user_id == app_user_id).delete(synchronize_session=False)
+        session.commit()  # Commit the transaction
+        st.markdown(f"Deleted playlists for app_user_id: {app_user_id}")
+    except Exception as e:
+        session.rollback()  # Roll back the transaction in case of error
+        st.markdown(f"Error occurred: {e}")

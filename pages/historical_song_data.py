@@ -117,6 +117,9 @@ def main():
         st.plotly_chart(fig)
 
 
+        st.markdown('This chart reflects the statistics of songs that you added to a playlist at a certain time.\nIt is NOT a reflection of your listening.')
+
+
 
 if __name__ == '__main__':
     main()
