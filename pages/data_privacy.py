@@ -16,7 +16,7 @@ def main():
 
         if st.button(f'Click to delete all playlist data associated with {current_user_display_name}. This cannot be undone!'):
             session = create_sqlalchemy_session()
-            delete_playlist_data(current_user_id)
+            delete_playlist_data(session, current_user_id)
             session.close()
             st.success(f"Data successfully deleted for user: {current_user_display_name}")
 
