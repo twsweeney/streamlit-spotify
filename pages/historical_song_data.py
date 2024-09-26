@@ -89,7 +89,10 @@ def main():
         song_df = get_song_df(session, current_user_id)
 
         selected_feature = draw_feature_selectbox()
+
         display_feature_description(selected_feature)
+        if selected_feature == 'duration_ms':
+            selected_feature = 'duration_seconds'
         # Streamlit UI for selecting the time range
         time_range_options = {
             "Past month": 30,

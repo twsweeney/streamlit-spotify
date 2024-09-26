@@ -62,6 +62,8 @@ def main():
         playlist_averages_df = get_playlist_averages(session, current_user_id)
         selected_feature = draw_feature_selectbox()
         display_feature_description(selected_feature)
+        if selected_feature == 'duration_ms':
+            selected_feature ='duration_seconds'
         selected_feature_df = get_selected_feature_df(playlist_averages_df, selected_feature)
 
         fig = display_feature_histogram(selected_feature_df, selected_feature)
