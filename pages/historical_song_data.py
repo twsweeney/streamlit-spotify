@@ -54,31 +54,9 @@ def dynamic_bins(df, days):
     return df
 
 # Function to calculate median popularity over time
-# def calculate_median(df, selected_feature):
-#     median_popularity = df.groupby('date_bin')[selected_feature].median().reset_index()
-#     return median_popularity
-
-def calculate_median(df, days, selected_feature):
-    # Group by date_bin and calculate median popularity and song count
-    summary = df.groupby('date_bin').agg(
-        median_popularity=(selected_feature, 'median'),
-        song_count=(selected_feature, 'size')
-    ).reset_index()
-
-    # Get the full range of bins, filling missing bins with NaN
-    full_range = pd.date_range(start=df['added_date'].min(), 
-                               end=df['added_date'].max(), 
-                               freq=pd.infer_freq(df['date_bin']))
-    
-    # Reindex the summary DataFrame to include all bins and introduce NaNs for missing bins
-    summary = summary.set_index('date_bin').reindex(full_range).reset_index()
-    summary.columns = ['date_bin', 'median_popularity', 'song_count']
-
-    # Fill missing song_count values with 0 (since no songs were added in those periods)
-    summary['song_count'].fillna(0, inplace=True)
-
-    # Fill missing median_popularity with NaN (no interpolation, just leave them as NaN)
-    return summary
+def calculate_median(df, selected_feature):
+    median_popularity = df.groupby('date_bin')[selected_feature].median().reset_index()
+    return median_popularity
 
 def draw_time_range_selector():
         # Streamlit UI for selecting the time range
@@ -124,22 +102,15 @@ def main():
         # Filter and process the data
         filtered_data = filter_data(song_df, days)
         binned_data = dynamic_bins(filtered_data, days)
-        median_data = calculate_median(binned_data, days, selected_feature)
+        median_data = calculate_median(binned_data, selected_feature)
 
             # Plot the result using Plotly
         ylabel = 'median_' + selected_feature
         fig = px.line(median_data, x='date_bin', y=ylabel,
                     title=f'Median Song {selected_feature} over Time ({selected_range})',
-                    labels={'date_bin': 'Date Added', selected_feature: f'Median {selected_feature}'},
-                    hover_data={'song_count': True})  # Include song count on hover
+                    labels={'date_bin': 'Date Added', selected_feature: f'Median {selected_feature}'})  
 
-        # Customize hover template to show song count
-        trace_label = 'Median ' + selected_feature
-        hover_template_string = '<b>Date</b>: %{x}<br><b>' + trace_label + '</b>: %{y}<br><b>Songs Added</b>: %{customdata[0]}'
-        fig.update_traces(hovertemplate=hover_template_string)
-
-
-        # st.write(song_df)
+        st.plotly_chart(fig)
 
 
 
