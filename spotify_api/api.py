@@ -1,8 +1,6 @@
 import requests 
-import os 
 import time
 import streamlit as st
-import hashlib
 import base64
 import random
 
@@ -146,83 +144,4 @@ class SpotifyAPI:
     def get_artist_genre(self, artist_ids: List[str]) -> Dict[str, Any]:
         return self._make_request('artists', params={'ids': ','.join(artist_ids)})
 
-    # def get_data(self, endpoint, get_tracks_request=False, multiple_items=True, chunked=False, params=None):
-    #     all_data = []
-    #     seen_ids = set()
-    #     url = self.base_url + endpoint 
-
-    #     response = requests.get(url, headers=self.headers, params=params)
-    #     response_data = response.json()
-    #     if response.status_code == 429:
-    #         retry_after = int(response.headers.get('Retry-After', 1))
-    #         print(f'429 code, retrying after: {retry_after} seconds')
-    #         time.sleep(retry_after)
-    #         return self.get_data(endpoint, params)
-    #     response.raise_for_status()
-    #     try:
-    #         total = response_data['total']
-    #         limit = response_data['limit']
-    #         if (total == 0) and (limit==0):
-    #             return []
-    #         n_pages = (total + limit + 1) // limit
-    #     except KeyError:
-    #         n_pages = 1 
-    #         limit = None 
-    #         total = None 
-
-    #     if chunked:
-    #         all_data = response_data
-    #         return all_data
-    #     for i in range(n_pages):
-    #         if limit:
-    #             offset = i * limit
-    #         else:
-    #             offset = 0
-    #         params = {'offset':offset}
-    #         response = requests.get(url, headers=self.headers, params=params)
-    #         response_data = response.json()
-    #         if multiple_items:
-    #             for item_index, item in enumerate(response_data.get('items',[])):
-    #                 item_id = item.get('track', {}).get('id') if get_tracks_request else item.get('id')
-    #                 if item_id not in seen_ids:
-    #                     all_data.append(item)
-    #                     seen_ids.add(item_id)
-    #         # if we enter this else statement we are only returning data from one item such as one song 
-    #         else:
-    #             all_data.append(response_data)
-    #             break
-    #     return all_data
-
-    # def get_current_user(self):
-    #     endpoint = 'me'
-    #     url = self.base_url + endpoint
-    #     response = requests.get(url, headers=self.headers)
-    #     response_data = response.json()
-    #     return response_data
-
-
-    # def get_user_playlists(self):
-    #     endpoint = 'me/playlists'
-    #     params = {'limit':50}
-    #     return self.get_data(endpoint, params=params)
-
-
-    # def get_playlist_items(self, playlist_id):
-    #     endpoint = f'playlists/{playlist_id}/tracks'
-    #     params = {'limit':50}
-    #     return self.get_data(endpoint, get_tracks_request=True, params=params)
     
-    # def get_audio_features(self, song_ids):
-    #     params = {
-    #         'ids': ','.join(song_ids)
-    #     }
-    #     endpoint = f'audio-features'
-    #     return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
-
-    # def get_artist_genre(self, artist_ids):
-    #     params = {
-    #         'ids': ','.join(artist_ids)
-    #     }
-    #     endpoint = f'artists'
-    #     return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
-

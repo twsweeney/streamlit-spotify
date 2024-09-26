@@ -121,6 +121,8 @@ def main():
         if st.button('Fetch Playlist data!'):
             fetch_and_store_data(spotify=spotify_api, app_user_id=st.session_state['user_id'])
 
+            
+        st.markdown('Note that if you refresh or close the page you wil need to reauthenticate with spotify on the main page')
 
 
 
