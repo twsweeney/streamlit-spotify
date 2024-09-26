@@ -97,7 +97,7 @@ class SpotifyAPI:
         self.display_name = self.get_current_user()['display_name']
 
     def _make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        url = self.BASE_URL + endpoint
+        url = self.base_url + endpoint
         response = requests.get(url, headers=self.headers, params=params)
 
         if response.status_code == 429:
