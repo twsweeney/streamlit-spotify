@@ -41,10 +41,6 @@ def get_song_feature_df(session, song_id_list):
 
 
 def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str, playlist_name_1:str, playlist_name_2:str):
-
-    if feature == 'duration_seconds':
-        feature = 'duration_ms'
-
     get_playlist_1_feature_query = f'''
     SELECT {feature}
     FROM songs
@@ -55,6 +51,7 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
     playlist_1_df = pd.DataFrame(rows, columns=result.keys())
 
     playlist_1_df['source'] = playlist_name_1
+    playlist_1_df['duration_seconds'] = playlist_1_df['duration_ms'] / 1000.0
 
     get_playlist_2_feature_query = f'''
     SELECT {feature}
@@ -66,17 +63,13 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
     playlist_2_df = pd.DataFrame(rows, columns=result.keys())
 
     playlist_2_df['source'] = playlist_name_2
+    playlist_2_df['duration_seconds'] = playlist_2_df['duration_ms'] / 1000.0
 
-
-
-    concat_df = pd.concat([playlist_1_df, playlist_2_df])
-    
     if feature == 'duration_ms':
-        plotting_df = concat_df.copy()
-        plotting_df['duration_seconds'] = plotting_df['duration_ms'] / 1000.0
         feature = 'duration_seconds'
-    else:
-        plotting_df = concat_df    
+
+
+    plotting_df = pd.concat([playlist_1_df, playlist_2_df])
 
     # bin_count = freedman_diaconis_rule(plotting_df[feature])
     bin_count = 20
@@ -90,6 +83,8 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
     bargap=0.1,  # Adjust gap between bars
     template="plotly_white"
     )
+
+        
     playlist_1_median = np.nanmedian(playlist_1_df[feature])
     playlist_2_median = np.nanmedian(playlist_2_df[feature])
     return fig, playlist_1_median, playlist_2_median
@@ -116,7 +111,7 @@ def display_feature_metrics(feature, playlist_name_1, playlist_name_2, playlist_
         'speechiness': f'The songs on {playlist_name_1} have {more_less} speechiness than the songs on {playlist_name_2}!',
         'tempo': f'The songs on {playlist_name_1} have {higher_lower} tempo than the songs on {playlist_name_2}!', 
         'valence': f'The songs on {playlist_name_1} have {more_less} valence than the songs on {playlist_name_2}!',
-        'duration_seconds': f'The songs on {playlist_name_1} are {longer_shorter} than the songs on {playlist_name_2}!'}
+        'duration_ms': f'The songs on {playlist_name_1} are {longer_shorter} than the songs on {playlist_name_2}!'}
 
     col1, col2 = st.columns(2)
     with col1:
