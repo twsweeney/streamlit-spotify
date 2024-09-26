@@ -4,12 +4,13 @@ import streamlit as st
 import base64
 import random
 
-from streamlit_utils import get_secret, get_ec2_public_ip
+from streamlit_utils import get_secret
 from typing import List, Dict, Any, Optional
 
 class SpotifyAPI:
-    def __init__(self):
-        
+    def __init__(self) -> None:
+        '''Initializes the SpotifyAPI class with necessary credentials and prepares for OAuth flow.'''
+
         self.CLIENT_ID = '5ff1fe753a2b4587be0ff3e890cea92f'
         self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
 
@@ -21,7 +22,6 @@ class SpotifyAPI:
             st.error("Could not retrieve public IP.")
 
 
-        # self.REDIRECT_URI = os.getenv('REDIRECT_URI')
         self.scope = "playlist-read-private"
 
         # Initialize the access token
@@ -29,12 +29,7 @@ class SpotifyAPI:
         # Attempt to get the access token from the session state
         self.get_access_token()
 
-    def generate_random_string(self, length):
-        """Generates a random string of specified length."""
-        possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        return ''.join(random.choice(possible) for _ in range(length))
-
-    def start_auth_flow(self):
+    def start_auth_flow(self) -> None:
         """Starts the  authentication flow."""
         
         auth_url = (
@@ -49,17 +44,18 @@ class SpotifyAPI:
         st.write(f"[Authorize with Spotify]({auth_url})")
 
 
-    def get_access_token(self):
+    def get_access_token(self) -> None:
         """Retrieves the access token from Streamlit session state or starts the auth flow."""
         if 'access_token' in st.session_state:
             self.access_token = st.session_state['access_token']
         else:
             self.start_auth_flow()
 
-    def exchange_code_for_access(self, code):
+    def exchange_code_for_access(self, code:str) -> Dict[str, Any]:
+        '''Take in the authorization code and exchange it for an access code that can be used for api calls.
+        Returns a json response containing the access code. '''
         token_url = 'https://accounts.spotify.com/api/token'
 
-        # Base64 encode client_id:client_secret
         auth_header = base64.b64encode(f"{self.CLIENT_ID}:{self.CLIENT_SECRET}".encode()).decode('utf-8')
 
         headers = {
@@ -76,7 +72,7 @@ class SpotifyAPI:
         response = requests.post(token_url, headers=headers, data=data)
         return response.json()
 
-    def handle_callback(self):
+    def handle_callback(self) -> None:
         """Handles the Spotify redirect callback to retrieve the code."""
         try:
             code = st.query_params['code']
@@ -87,7 +83,8 @@ class SpotifyAPI:
             st.write('Click the link to log in!')
             # self.start_auth_flow()
 
-    def initialize_after_auth(self):
+    def initialize_after_auth(self) -> None:
+        """Initializes the API after authentication to retrieve the user's info."""
         self.base_url = 'https://api.spotify.com/v1/'
         self.headers = {"Authorization": f"Bearer {self.access_token}"}
 
@@ -95,6 +92,8 @@ class SpotifyAPI:
         self.display_name = self.get_current_user()['display_name']
 
     def _make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        '''Send a request to the api at the given endpoint. Params can contain anything that needs to be 
+        passed to the endpoint, like a list of song or artist ids to return data about.'''
         url = self.base_url + endpoint
         response = requests.get(url, headers=self.headers, params=params)
 
@@ -108,6 +107,7 @@ class SpotifyAPI:
         return response.json()
 
     def _paginate_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None, get_tracks: bool = False) -> List[Dict[str, Any]]:
+        '''Handle pagination for endpoints that may contain larger amounts of paginated data'''
         all_items = []
         seen_ids = set()
         params = params or {}
@@ -138,6 +138,7 @@ class SpotifyAPI:
     def get_playlist_items(self, playlist_id: str) -> List[Dict[str, Any]]:
         return self._paginate_request(f'playlists/{playlist_id}/tracks', params={'limit': 50}, get_tracks=True)
 
+    # No need to paginate these requests since we are passing in a certain number of ids in the params argument
     def get_audio_features(self, song_ids: List[str]) -> Dict[str, Any]:
         return self._make_request('audio-features', params={'ids': ','.join(song_ids)})
 

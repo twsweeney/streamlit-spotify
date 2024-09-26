@@ -1,8 +1,9 @@
 # this is where all of the functions that format the data into useful forms for the database will go 
 import numpy as np 
 from datetime import datetime
+from typing import Dict, List, Optional
 
-def extract_playlist_details(user_playlists, app_user_id:str) -> dict:
+def extract_playlist_details(user_playlists:List[Dict], app_user_id:str) -> Dict:
     '''takes in get current user playlists response and fills in
     ids and names'''
 
@@ -18,11 +19,10 @@ def extract_playlist_details(user_playlists, app_user_id:str) -> dict:
     }
     return playlists_data
 
-def format_release_date(date_str):
-
+def format_release_date(date_str:str) -> Optional[str]:
+    '''Handle the different formats of input strings and fill in 1 if there is no value there. '''
     if not date_str:
         return None
-
     try:
         # Try parsing as full date (YYYY-MM-DD)
         date = datetime.strptime(date_str, '%Y-%m-%d')
@@ -41,11 +41,11 @@ def format_release_date(date_str):
             except ValueError:
                 return None
 
-    
     # Return the date in 'YYYY-MM-DD' format
     return date.strftime('%Y-%m-%d')
 
-def extract_song_data(playlist_items):
+def extract_song_data(playlist_items:Dict) -> Dict[str, List]:
+    '''Format song data into a dictionary of lists'''
     song_data = {
         'song_id':[playlist_item['track']['id'] for playlist_item in playlist_items],
         'title': [playlist_item['track']['name'] for playlist_item in playlist_items],
@@ -57,8 +57,8 @@ def extract_song_data(playlist_items):
     }
     return song_data
     
-def extract_song_playlist_data(playlist_id, playlist_items):
-
+def extract_song_playlist_data(playlist_id:str, playlist_items:Dict)-> Dict[str, List]:
+    '''Foramt song playlist data into a dictionary of lists'''
     song_playlist_data = {
         'playlist_id':[playlist_id] * len(playlist_items),
         'song_id':[playlist_item['track']['id'] for playlist_item in playlist_items],
@@ -67,16 +67,9 @@ def extract_song_playlist_data(playlist_id, playlist_items):
     }
     return song_playlist_data
 
-def extract_song_features_data(audio_features_items):
-
+def extract_song_features_data(audio_features_items:Dict)-> Dict[str, List]:
+    '''Format the song features into a dictionary of lists'''
     audio_features_array = audio_features_items['audio_features']
-
-    # for audio_features in audio_features_array:
-    #     try:
-    #         song_id = audio_features['id']
-    #     except Exception as e:
-    #         print(e)
-    #         print(audio_features)
     audio_features_clean = []
     for audio_features in audio_features_array:
         try:
@@ -98,7 +91,8 @@ def extract_song_features_data(audio_features_items):
     }
     return song_features_data
 
-def extract_artist_data(playlist_items):
+def extract_artist_data(playlist_items) -> Dict[str, List]:
+    '''Formats artist data into a dictionary of lists'''
     artist_data = {
         'artist_id':[],
         'name':[], 
@@ -116,7 +110,8 @@ def extract_artist_data(playlist_items):
             artist_data['song_id'].append(song_id)
     return artist_data
 
-def extract_artist_genre_popularity_data(artist_genres):
+def extract_artist_genre_popularity_data(artist_genres) -> Dict[str, List]:
+    '''Formats artist genre data into a dictionary of lists'''
     artist_data = {
         'artist_id':[],
         'genre_list':[], 

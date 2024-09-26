@@ -10,17 +10,16 @@ import numpy as np
 import streamlit as st
 
 from database.sqlalchemy_model import Playlist, Songs, PlaylistSongs, Artist, ArtistGenre, SongArtist
+from sqlalchemy.orm import Session
+from typing import List, Dict, Any, Optional
 
-# def create_sqlalchemy_session():
-#     username = 'Toomeh'
-#     password = os.getenv('DB_PASSWORD')
-#     dbname = 'spotify_db'
-#     engine = create_engine(f'mysql+pymysql://{username}:{password}@localhost/{dbname}')
-#     Session = sessionmaker(bind=engine)
-#     session = Session()
-#     return session
+# Note that in many of these functions the sqlalchemy session is not closed at the end
+# this is intentional, as when these functions are called it is many times in sequence of one another 
+# This means we do not have to constantly close and open the sqlalchemy session
 
-def load_playlists_data(session, playlists_data):
+
+def load_playlists_data(session:Session, playlists_data:Dict) -> None:
+    '''Loads data into the playlists table using sqlalchemy'''
     n_playlists = len(playlists_data['playlist_id'])
     for i in range(n_playlists):
         new_playlist = Playlist(playlist_id=playlists_data['playlist_id'][i], name=playlists_data['name'][i], 
@@ -29,12 +28,12 @@ def load_playlists_data(session, playlists_data):
         session.add(new_playlist)
         try:
             session.commit()
-            # print(f"Artist {artist_data['name'][i]} added.")
         except IntegrityError:
             session.rollback()  # Rollback in case of an error
     
 
-def load_song_data(session, song_data):
+def load_song_data(session:Session, song_data:Dict) -> None:
+    '''Loads data into the songs table using sqlalchemy'''
     songs = [
         dict(zip(song_data.keys(), values))
         for values in zip(*song_data.values())
@@ -46,10 +45,12 @@ def load_song_data(session, song_data):
         session.add(new_song)
         try:
             session.commit()
+    
         except IntegrityError:
-            session.rollback()
+            session.rollback() # Rollback in case of an error
             
-def load_playlists_songs_data(session, song_playlist_data):
+def load_playlists_songs_data(session:Session, song_playlist_data:Dict) -> None:
+    '''Loads data into the playlist songs table using sqlalchemy'''
     playlist_songs = [
         dict(zip(song_playlist_data.keys(), values))
         for values in zip(*song_playlist_data.values())
@@ -64,21 +65,24 @@ def load_playlists_songs_data(session, song_playlist_data):
         try:
             session.commit()
         except IntegrityError:
-            session.rollback()
+            session.rollback() # Rollback in case of an error
 
 
-def update_playlist_songs_dates(session, playlist_id, song_playlist_data):
+def update_playlist_songs_dates(session:Session, playlist_id, song_playlist_data) -> None:
+    '''Updates the playlist table with timestamped information obtained through the songs endpoint'''
     created_date = np.min(song_playlist_data['added_date'])
     last_updated = np.max(song_playlist_data['added_date'])
     updated_playlist = Playlist(playlist_id=playlist_id, created_date=created_date, last_updated=last_updated)
     session.merge(updated_playlist)
     try:
         session.commit()
-        # print(f"Artist {artist_data['name'][i]} added.")
     except IntegrityError:
         session.rollback()  # Rollback in case of an error
 
-def get_song_ids_with_nulls(session, playlist_id, chunk_size=100):
+def get_song_ids_with_nulls(session:Session, playlist_id:str, chunk_size=100) -> List:
+    '''Gets song ids that are missing data from the audio features endpoint. 
+    Returns a list of lists with max  len of 100, since the api endpoint 
+    the song ids will be passed to only accepts 100 ids per request'''
     query = f"""
         SELECT s.song_id 
         FROM songs AS s 
@@ -102,7 +106,7 @@ def get_song_ids_with_nulls(session, playlist_id, chunk_size=100):
     # put the results in a list for easy loopin 
     null_song_ids = [row[0] for row in null_song_ids]
     null_song_ids_chunked = []
-    # Default chunk size of 100 but can be changed as a parameters
+    # Chop the results ito chunks 
     n_chunks = (len(null_song_ids) + chunk_size -1) // chunk_size
     for i in range(n_chunks):
         start_index = i*chunk_size 
@@ -111,7 +115,10 @@ def get_song_ids_with_nulls(session, playlist_id, chunk_size=100):
         null_song_ids_chunked.append(chunk)    
     return null_song_ids_chunked
 
-def get_artists_with_nulls(session):
+def get_artists_with_nulls(session:Session, chunk_size = 50) -> List:
+    '''Gets aretist ids where there is no genre information filled in. Returns 
+    ids in chunks of specified size since only 50 artist ids can be passed to 
+    the endpoint in a single request'''
     query = """
     SELECT a.artist_id 
     FROM artists AS a
@@ -122,67 +129,67 @@ def get_artists_with_nulls(session):
     result = session.execute(text(query))
     null_artist_ids = result.fetchall()
     null_artist_ids = [row[0] for row in null_artist_ids]
-
+    # Divide into chunks of specified size 
     null_artist_ids_chunked = []
-
-    chunk_size = 50
     n_chunks = (len(null_artist_ids) + chunk_size -1) // chunk_size
     for i in range(n_chunks):
         start_index = i*chunk_size 
         end_index = start_index + chunk_size
         chunk = null_artist_ids[start_index:end_index]
         null_artist_ids_chunked.append(chunk)
-
-    
     return null_artist_ids_chunked
 
-
-
-
-def load_song_features_data(session, song_features_data):
-
+def load_song_features_data(session:Session, song_features_data:Dict) -> None:
+    '''Updates the songs table with data obtained through the audio features endpoint'''
     n_songs = len(song_features_data['song_id'])
     for i in range(n_songs):
-
+        # check edge case of song id being null (this rarely happens with songs still on playlists that have been removed from spotify)
         if not song_features_data['song_id'][i]:
             continue
-
         song = Songs(song_id=song_features_data['song_id'][i], danceability=song_features_data['danceability'][i],
                      acousticness=song_features_data['acousticness'][i], energy=song_features_data['energy'][i],
                      instrumentalness=song_features_data['instrumentalness'][i], liveness=song_features_data['liveness'][i],
                       loudness=song_features_data['loudness'][i], speechiness=song_features_data['speechiness'][i],
                        tempo=song_features_data['tempo'][i], valence=song_features_data['valence'][i] )
         session.merge(song)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback() # Rollback in case of an error
 
-def load_artist_data(session, artist_data):
+def load_artist_data(session:Session, artist_data:Dict) -> None:
+    '''Loads artist id and name into the artists table using sqlalchemy'''
+
     n_artists = len(artist_data['artist_id'])
     for i in range(n_artists):
         new_artist = Artist(artist_id=artist_data['artist_id'][i], name=artist_data['name'][i])
-
         if not artist_data['artist_id'][i]:
             continue
         session.add(new_artist)
         try:
             session.commit()
-            # print(f"Artist {artist_data['name'][i]} added.")
         except IntegrityError:
             session.rollback()  # Rollback in case of an error
-            # print(f"Artist {artist_data['name'][i]} already exists. Skipping insertion.")
 
-def update_artist_popularity(session, artist_genre_popularity_data):
+def update_artist_popularity(session:Session, artist_genre_popularity_data:Dict) -> None:
+    '''Load the artist popularity data into the artists table'''
     n_artists = len(artist_genre_popularity_data['artist_id'])
     for i in range(n_artists):
         if not artist_genre_popularity_data['artist_id'][i]:
             continue
         updated_artist = Artist(artist_id=artist_genre_popularity_data['artist_id'][i], popularity=artist_genre_popularity_data['popularity'][i])
         session.merge(updated_artist)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()  # Rollback in case of an error
 
-def load_artist_genre_data(session, artist_genre_popularity_data): 
+def load_artist_genre_data(session:Session, artist_genre_popularity_data:Dict) -> None: 
+    '''Load artist genre data into the artist genre table'''
     artist_id_list = artist_genre_popularity_data['artist_id']
 
     for index, artist_id in enumerate(artist_id_list):
+        # catch artist id = None and skip
         if not artist_id:
             continue 
         genre_list = artist_genre_popularity_data['genre_list'][index]
@@ -194,9 +201,8 @@ def load_artist_genre_data(session, artist_genre_popularity_data):
             except IntegrityError:
                 session.rollback()  # Rollback in case of an error
 
-def load_song_artist_data(session, artist_data):
-    
-
+def load_song_artist_data(session:Session, artist_data:Dict) -> None:
+    ''' Load the song artist data  '''
     n_artists = len(artist_data['artist_id'])
     for i in range(n_artists):
         if not artist_data['artist_id'][i]:
@@ -210,7 +216,7 @@ def load_song_artist_data(session, artist_data):
             session.rollback()  # Rollback in case of an error
 
 
-def delete_playlist_data(session, app_user_id:str) -> None:
+def delete_playlist_data(session:Session, app_user_id:str) -> None:
     '''Deletes the playlist data for a given user_id'''
     try:
         # Query to delete playlists with the specified app_user_id

@@ -21,12 +21,12 @@ CREATE TABLE artist_genres (
 
 -- Create `songs` Table
 CREATE TABLE songs (
-    song_id VARCHAR(255) UNIQUE PRIMARY KEY,  -- spotify song id 
-    title VARCHAR(255) NOT NULL,             -- Song title, cannot be null
+    song_id VARCHAR(255) UNIQUE PRIMARY KEY,  
+    title VARCHAR(255) NOT NULL,             
     album_name VARCHAR(255),      
-    album_id VARCHAR(255),                  -- Album name
-    duration_ms FLOAT,                            -- Duration of the song in ms
-    release_date DATE,                       -- Release date of the song
+    album_id VARCHAR(255),                  
+    duration_ms FLOAT,                           
+    release_date DATE,                      
     popularity FLOAT,
     acousticness FLOAT, 
     danceability FLOAT,
@@ -52,7 +52,7 @@ CREATE TABLE song_artists (
 -- Create `playlists` Table
 CREATE TABLE playlists (
     playlist_id VARCHAR(255) UNIQUE PRIMARY KEY,   
-    name VARCHAR(255) NOT NULL,                   -- Playlist name, cannot be null
+    name VARCHAR(255) NOT NULL,                   
     owner_id VARCHAR(255),
     is_collaborative TINYINT(1),
     created_date TIMESTAMP DEFAULT NULL,  
@@ -69,19 +69,3 @@ CREATE TABLE playlist_songs (
     FOREIGN KEY (playlist_id) REFERENCES playlists(playlist_id) ON DELETE CASCADE,
     FOREIGN KEY (song_id) REFERENCES songs(song_id) ON DELETE CASCADE
 );
-
--- CREATE TABLE auth_session_data (
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     code_verifier VARCHAR(255),
---     session_id
--- )
-
--- CREATE TABLE user_tokens (
---     app_user_id VARCHAR(255),      -- Unique identifier for the user
---     display_name VARCHAR(255),
---     access_token TEXT NOT NULL,             -- The user's access token
---     refresh_token TEXT NOT NULL,             -- The user's refresh token
---     expires_at DATETIME NOT NULL,            -- Expiration date and time of the access token
---     created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the token was created
---     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- Timestamp for when the token was last updated
--- );

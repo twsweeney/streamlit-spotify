@@ -1,10 +1,11 @@
 import streamlit as st 
 from streamlit_utils import * 
 import plotly.express as px 
+import plotly.graph_objects as go
+from sqlalchemy.orm import Session
 
-
-def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
-
+def get_playlist_averages(session:Session,current_user_id:str) -> pd.DataFrame:
+    '''Get the average of every song feature found across all playlists for the current user'''
     get_playlist_averages_query = f'''
     SELECT p.name AS playlist_name, AVG(s.popularity) AS average_popularity, AVG(s.acousticness) AS average_acousticness, AVG(s.danceability) AS average_danceability, 
                 AVG(s.energy) AS average_energy, AVG(s.instrumentalness) AS average_instrumentalness, AVG(s.liveness) AS average_liveness, AVG(s.loudness) AS average_loudness,
@@ -21,14 +22,15 @@ def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
     df = pd.DataFrame(rows, columns=result.keys())
     return df 
 
-
-def get_selected_feature_df(playlist_averages_df, selected_feature) -> pd.DataFrame:
+def get_selected_feature_df(playlist_averages_df:pd.DataFrame, selected_feature:str) -> pd.DataFrame:
+    '''get the dataframe for only the playlist we have selected'''
     column_name = 'average_' + selected_feature 
     selected_feature_df = playlist_averages_df[['playlist_name', column_name]].sort_values(by=column_name, ascending=False)
     return selected_feature_df
 
 
-def display_feature_histogram(selected_feature_df, selected_feature):
+def display_feature_histogram(selected_feature_df:pd.DataFrame, selected_feature:str) -> go.Figure:
+    ''' Display the histogram of the selected feature '''
     bin_count = 20
     column_name = 'average_' + selected_feature 
 
@@ -52,45 +54,18 @@ def main():
     else:
         current_user_id = st.session_state['user_id']
         current_user_display_name = st.session_state["display_name"]
-
         st.markdown('# Playlist Feature report')
         st.markdown(f'Currently logged in as: {current_user_display_name}')
-
         session = create_sqlalchemy_session()
-
-
         playlist_averages_df = get_playlist_averages(session, current_user_id)
         selected_feature = draw_feature_selectbox()
         display_feature_description(selected_feature)
         if selected_feature == 'duration_ms':
             selected_feature ='duration_seconds'
         selected_feature_df = get_selected_feature_df(playlist_averages_df, selected_feature)
-
         fig = display_feature_histogram(selected_feature_df, selected_feature)
-
         st.plotly_chart(fig)
-
-        # max_playlist = selected_feature_df.iloc[0]['playlist_name']  
-        # min_playlist = selected_feature_df.iloc[-1]['playlist_name']  
-        # column_name = 'average_' + selected_feature
-        # # Get the corresponding values of the selected feature
-        # max_value = selected_feature_df.iloc[0][column_name]
-        # min_value = selected_feature_df.iloc[-1][column_name]
-        # col1, col2 = st.columns(2)
-        # with col1:
-        #     st.metric(f'{min_playlist} has the lowest value of {selected_feature}, with a value of:', {round(min_value, 3)})
-        # with col2:
-        #     st.metric(f'{max_playlist} has the highest value of {selected_feature}, with a value of:' ,{round(max_value, 3)})
-
         with st.expander(f"Clich to see all of the data for {selected_feature}", expanded=False):
             st.write(selected_feature_df)
-        
-
-
-        
-        # playlist_df = get_playlist_df(session, current_user_id)
-
-
-
 if __name__ == '__main__':
     main()

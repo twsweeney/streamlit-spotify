@@ -1,7 +1,5 @@
-from sqlalchemy import Text, Column, String, TIMESTAMP, ForeignKey, PrimaryKeyConstraint, Float, Boolean, Date, DateTime
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, PrimaryKeyConstraint, Float, Boolean, Date
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
 Base = declarative_base()
 
 class Playlist(Base):
@@ -17,19 +15,19 @@ class Playlist(Base):
 class Songs(Base):
     __tablename__ = 'songs'
     
-    song_id = Column(String(255), primary_key=True, unique=True)  # Spotify song ID
-    title = Column(String(255), nullable=False)  # Song title, cannot be null
-    album_name = Column(String(255))  # Album name
-    album_id = Column(String(255))  # Album ID
-    duration_ms = Column(Float)  # Duration of the song in ms
-    release_date = Column(Date)  # Release date of the song
+    song_id = Column(String(255), primary_key=True, unique=True)  
+    title = Column(String(255), nullable=False) 
+    album_name = Column(String(255))  
+    album_id = Column(String(255))  
+    duration_ms = Column(Float)  
+    release_date = Column(Date) 
     popularity = Column(Float)
     acousticness = Column(Float)
     danceability = Column(Float)
     energy = Column(Float)
     instrumentalness = Column(Float)
     liveness = Column(Float)
-    loudness = Column(Float)  # Corrected from "lousness" to "loudness"
+    loudness = Column(Float)  
     speechiness = Column(Float)
     tempo = Column(Float)
     valence = Column(Float)
@@ -72,17 +70,3 @@ class SongArtist(Base):
     __table_args__ = (
         PrimaryKeyConstraint('song_id', 'artist_id'),
     )
-
-
-
-# class UserToken(Base):
-#     __tablename__ = 'user_tokens'
-    
-#     app_user_id = Column(String(255))      # Unique identifier for the user
-#     display_name = Column(String(255))
-#     code_verifier = Column(String(255))
-#     access_token = Column(Text, nullable=False)                # The user's access token
-#     refresh_token = Column(Text, nullable=False)               # The user's refresh token
-#     expires_at = Column(DateTime, nullable=False)              # Expiration date and time of the access token
-#     created_at = Column(TIMESTAMP, nullable=True, default=TIMESTAMP)  # Timestamp for when the token was created
-#     updated_at = Column(TIMESTAMP, nullable=True, default=TIMESTAMP, onupdate=TIMESTAMP)  # Timestamp for when the token was last updated

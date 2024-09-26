@@ -6,11 +6,7 @@ from database.loading import *
 from streamlit_utils import check_if_user_exists
 import time
 
-
-
-
-
-def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
+def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str) -> None:
     user_playlists = spotify.get_user_playlists()
     playlist_data = extract_playlist_details(user_playlists, app_user_id)
     session = create_sqlalchemy_session()
@@ -97,13 +93,8 @@ def main():
     # Usage in Streamlit
     st.markdown(" # Welcome to my Spotify Playlist analysis app!")
     st.markdown('To see your stats, authenticate through spotify with the link below!')
-
-
     spotify_api = SpotifyAPI()
     spotify_api.handle_callback()  # Check for the callback and exchange the code for a token
-
-
-
     # Use the Spotify API methods as needed
     if spotify_api.access_token:
         spotify_api.initialize_after_auth()
@@ -121,14 +112,9 @@ def main():
             status_text.markdown('You are in the database! Feel free to update your data by pressing the button below \n or move on to an analysis page on the sidebar!')
         else:
             status_text.markdown('No data found for you, please press the button below!')
-
-
         if st.button('Fetch Playlist data!'):
             fetch_and_store_data(spotify=spotify_api, app_user_id=st.session_state['user_id'])
-
-            
         st.markdown('Note that if you refresh or close the page you wil need to reauthenticate with spotify on the main page')
-
         st.markdown('For more information about how your data is stored and managed, see the data privacy page')
     else:
         st.markdown('Want to see how it works before logging in? Press the button below to login as the creator of this site (twsweeney). Please just promise not to judge my music taste :)')
@@ -136,6 +122,7 @@ def main():
             st.session_state['user_id'] = 'twsweeney'
             st.session_state['display_name'] = 'twsweeney'
             st.markdown('You are successfully logged in as twsweeney! To log out and log in as yourself, refresh the website and authenticate at the top of the home page.')
+            st.markdown('Navagate to one of the pages in the sidebar to see some playlist analysis')
             
     st.markdown('Feel free to check out the "about" page in the sidebar for more information about this site!')
     
