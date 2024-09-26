@@ -51,7 +51,7 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
     playlist_1_df = pd.DataFrame(rows, columns=result.keys())
 
     playlist_1_df['source'] = playlist_name_1
-    playlist_1_df['duration_seconds'] = playlist_1_df['duration_ms'] / 1000.0
+    
 
     get_playlist_2_feature_query = f'''
     SELECT {feature}
@@ -63,9 +63,11 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
     playlist_2_df = pd.DataFrame(rows, columns=result.keys())
 
     playlist_2_df['source'] = playlist_name_2
-    playlist_2_df['duration_seconds'] = playlist_2_df['duration_ms'] / 1000.0
+    
 
     if feature == 'duration_ms':
+        playlist_1_df['duration_seconds'] = playlist_1_df['duration_ms'] / 1000.0
+        playlist_2_df['duration_seconds'] = playlist_2_df['duration_ms'] / 1000.0
         feature = 'duration_seconds'
 
 

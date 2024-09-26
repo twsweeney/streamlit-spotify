@@ -8,7 +8,7 @@ def get_playlist_averages(session,current_user_id:str) -> pd.DataFrame:
     get_playlist_averages_query = f'''
     SELECT p.name AS playlist_name, AVG(s.popularity) AS average_popularity, AVG(s.acousticness) AS average_acousticness, AVG(s.danceability) AS average_danceability, 
                 AVG(s.energy) AS average_energy, AVG(s.instrumentalness) AS average_instrumentalness, AVG(s.liveness) AS average_liveness, AVG(s.loudness) AS average_loudness,
-                AVG(s.speechiness) AS average_speechiness, AVG(s.tempo) AS average_tempo, AVG(s.valence) AS average_valence
+                AVG(s.speechiness) AS average_speechiness, AVG(s.tempo) AS average_tempo, AVG(s.valence) AS average_valence, AVG(s.duration_ms) / 1000.0 AS average_duration_seconds
     
     FROM playlists AS p 
     JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
