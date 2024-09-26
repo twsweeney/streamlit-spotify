@@ -20,7 +20,7 @@ def get_song_feature_df(session, song_id_list):
 
     SELECT s.song_id, s.title, s.popularity, s.acousticness, s.danceability, 
                 s.energy, s.instrumentalness, s.liveness, s.loudness,
-                s.speechiness, s.tempo, s.valence, s.duration_ms * 1000 AS duration_seconds, GROUP_CONCAT(a.name SEPARATOR ', ') AS artists
+                s.speechiness, s.tempo, s.valence, s.duration_ms, GROUP_CONCAT(a.name SEPARATOR ', ') AS artists
     FROM songs AS s 
     JOIN song_artists AS sa ON s.song_id=sa.song_id
     JOIN artists AS a ON sa.artist_id=a.artist_id
@@ -64,7 +64,17 @@ def plot_feature_histogram(session, song_id_list_1, song_id_list_2, feature:str,
 
     playlist_2_df['source'] = playlist_name_2
 
-    plotting_df = pd.concat([playlist_1_df, playlist_2_df])
+
+
+    concat_df = pd.concat([playlist_1_df, playlist_2_df])
+    
+    if feature == 'duration_ms':
+        plotting_df = concat_df.copy()
+        plotting_df['duration_seconds'] = plotting_df['duration_ms'] / 1000.0
+        feature = 'duration_seconds'
+    else:
+        plotting_df = concat_df    
+
     # bin_count = freedman_diaconis_rule(plotting_df[feature])
     bin_count = 20
     fig = px.histogram(plotting_df, x=feature, color='source', histnorm='probability',
@@ -103,7 +113,7 @@ def display_feature_metrics(feature, playlist_name_1, playlist_name_2, playlist_
         'speechiness': f'The songs on {playlist_name_1} have {more_less} speechiness than the songs on {playlist_name_2}!',
         'tempo': f'The songs on {playlist_name_1} have {higher_lower} tempo than the songs on {playlist_name_2}!', 
         'valence': f'The songs on {playlist_name_1} have {more_less} valence than the songs on {playlist_name_2}!',
-        'duration_seconds': f'The songs on {playlist_name_1} are {longer_shorter} than the songs on {playlist_name_2}!'}
+        'duration_ms': f'The songs on {playlist_name_1} are {longer_shorter} than the songs on {playlist_name_2}!'}
 
     col1, col2 = st.columns(2)
     with col1:

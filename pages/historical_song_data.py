@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 def get_song_df(session, current_user_id:str):
     get_available_playlists_query = f'''
-    SELECT s.song_id AS song_id, ps.added_date AS added_date, s.duration_ms * 1000 AS duration_seconds, 
+    SELECT s.song_id AS song_id, ps.added_date AS added_date, s.duration_ms / 1000.0 AS duration_seconds, 
     s.popularity, s.acousticness, s.danceability, s.energy, s.instrumentalness,
     s.liveness, s.loudness, s.speechiness, s.tempo, s.valence
     FROM playlists AS p 
