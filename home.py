@@ -97,8 +97,7 @@ def main():
     # Usage in Streamlit
     st.markdown(" # Welcome to my Spotify Playlist analysis app!")
     st.markdown('To see your stats, authenticate through spotify with the link below!')
-    st.markdown('Feel free to check out the "about" page in the sidebar for more information about this site!')
-    
+
 
     spotify_api = SpotifyAPI()
     spotify_api.handle_callback()  # Check for the callback and exchange the code for a token
@@ -133,11 +132,12 @@ def main():
         st.markdown('For more information about how your data is stored and managed, see the data privacy page')
     else:
         st.markdown('Want to see how it works before logging in? Press the button below to login as the creator of this site (twsweeney). Please just promise not to judge my music taste :)')
-        if st.button('Login as twsweeney'):
+        if st.button('Login as test user'):
             st.session_state['user_id'] = 'twsweeney'
             st.session_state['display_name'] = 'twsweeney'
             st.markdown('You are successfully logged in as twsweeney! To log out and log in as yourself, refresh the website and authenticate at the top of the home page.')
             
-
+    st.markdown('Feel free to check out the "about" page in the sidebar for more information about this site!')
+    
 if __name__ == '__main__':
     main()
