@@ -106,7 +106,7 @@ def get_song_id_list(session:Session, playlist_id:str, current_user_id:str, excl
         SELECT song_id, p.playlist_id, p.name AS playlist_name
         FROM playlists AS p 
         JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
-        WHERE p.playlist_id = '{playlist_id}'AND p.app_user_id={current_user_id};
+        WHERE p.playlist_id = '{playlist_id}' AND p.app_user_id={current_user_id};
         '''
     result = session.execute(text(get_song_list_query))
     rows = result.fetchall()
