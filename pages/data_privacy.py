@@ -14,14 +14,14 @@ def main():
         current_user_id = st.session_state['user_id']
         current_user_display_name = st.session_state["display_name"]
 
-        st.markdown(f'Currently logged in as: {current_user_display_name}')
-        st.markdown(f'If you would like to delete data associated with your account, click the button below')
-
-        if st.button(f'Click to delete all playlist data associated with {current_user_display_name}. This cannot be undone!'):
-            if current_user_id == 'twsweeney' and 'access_token' not in st.session_state:
-                # if this is true then the user is testing the site out as twsweeney and should not be permitted to delete the data associated with it
-                st.markdown('Sorry, you do not have permission to delete this data!')
-            else:
+        
+        
+        if 'access_token' not in st.session_state:
+            st.markdown('If you log in then you will be able to delete your data here at any time. ')
+        else:
+            st.markdown(f'Currently logged in as: {current_user_display_name}')
+            st.markdown(f'If you would like to delete data associated with your account, click the button below')
+            if st.button(f'Click to delete all playlist data associated with {current_user_display_name}. This cannot be undone!'):
                 session = create_sqlalchemy_session()
                 delete_playlist_data(session, current_user_id)
                 session.close()
