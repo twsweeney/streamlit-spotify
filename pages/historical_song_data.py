@@ -102,7 +102,7 @@ def main():
         # Filter and process the data
         filtered_data = filter_data(song_df, days)
         binned_data = dynamic_bins(filtered_data, days)
-        median_popularity_data = calculate_median(binned_data)
+        median_popularity_data = calculate_median(binned_data, selected_feature)
 
         # Plot the result using Plotly
         fig = px.line(median_popularity_data, x='date_bin', y=selected_feature,
