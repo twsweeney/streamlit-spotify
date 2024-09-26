@@ -49,8 +49,10 @@ def dynamic_bins(df, days):
     else:
         bin_freq = 'M'  # Monthly bins
 
-    # Create a new column for binning
-    df['date_bin'] = df['added_date'].dt.to_period(bin_freq).dt.to_timestamp()
+    # Use .loc[] to avoid the SettingWithCopyWarning
+    df = df.copy()  # Avoid changing the original dataframe
+    df.loc[:, 'date_bin'] = df['added_date'].dt.to_period(bin_freq).dt.to_timestamp()
+    
     return df
 
 # Function to calculate median popularity over time
