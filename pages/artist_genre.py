@@ -43,7 +43,7 @@ def main():
     else:
         current_user_id = st.session_state['user_id']
 
-        st.markdown('# Compare your playlists!')
+        st.markdown('# Compare the top artist genres in your playlists!')
         st.markdown(f'Currently logged in as: {st.session_state["display_name"]}')
 
         session = create_sqlalchemy_session()

@@ -14,6 +14,7 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
     user_playlists = spotify.get_user_playlists()
     playlist_data = extract_playlist_details(user_playlists, app_user_id)
     session = create_sqlalchemy_session()
+    # save all user playlist data to the database
     load_playlists_data(session, playlist_data)
     playlist_id_list = playlist_data['playlist_id']
     # Create a progress bar
@@ -32,25 +33,27 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
         else:
             status_text.text(f"Getting data for playlist: {playlist_name}")
         playlist_items = spotify.get_playlist_items(playlist_id)
+        # if a playlist has no songs on it, skip it
         if len(playlist_items) == 0:
-            # print(f"playlist: {playlist_data['name'][index]} has no songs, skipping to the next playlist")
             continue
+        # call the api for song data and store in the database
         song_data = extract_song_data(playlist_items)
-        # print(f'song data extracted successfully')
-        # print(f'Loading song data')
         load_song_data(session, song_data)
-        # print(f'Extracting song playlist data')
+        # Load data into the playlist songs table
+        # Playlist songs links together the relationship between a playlist and the songs on it
+        # This is a many to many relationship as one song can be on multiple playlists, and one playlist can have multiple songs
         song_playlist_data = extract_song_playlist_data(playlist_id, playlist_items)
         update_playlist_songs_dates(session, playlist_id,song_playlist_data)
-        # print(f'loading song playlist data')
         load_playlists_songs_data(session,  song_playlist_data)
 
-        # print(f'getting songs without audio features')
+        # Since some song feature data is located at a different endpoint in the spotify api, it must be collected seprately
+        # First I check the database to see if the data we need is already in the database 
         null_song_ids_chunked = get_song_ids_with_nulls(session, playlist_id)        
         for chunk in null_song_ids_chunked:
             song_features = spotify.get_audio_features(chunk)
             song_feature_data = extract_song_features_data(song_features)
             load_song_features_data(session, song_feature_data)
+        # Get the artist data for each song and upload it to the database
         artist_data = extract_artist_data(playlist_items)
         load_artist_data(session, artist_data)
         load_song_artist_data(session, artist_data)
@@ -61,11 +64,11 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str):
         elapsed_time = time.time() - start_time
         estimated_total_time = elapsed_time / (index + 1) * total_playlists
         remaining_time = estimated_total_time - elapsed_time
+    status_text.text('Finished processing playlist data, filling in artist genre data now...')
     progress_bar = st.progress(0)
-    # Placeholder for displaying the current playlist being processed
-    status_text = st.empty()
     # Processeach playlist
     start_time = time.time()
+    # Get artists without data associated with them yet to be filled in
     null_artist_ids_chunked = get_artists_with_nulls(session)
     n_chunks = len(null_artist_ids_chunked)
     remaining_time = None
@@ -100,12 +103,15 @@ def main():
     spotify_api = SpotifyAPI()
     spotify_api.handle_callback()  # Check for the callback and exchange the code for a token
 
+
+
     # Use the Spotify API methods as needed
     if spotify_api.access_token:
         spotify_api.initialize_after_auth()
         st.write("Logged in as user:", spotify_api.display_name)
         st.session_state['display_name'] = spotify_api.display_name
         st.session_state['user_id'] = spotify_api.user_id
+        st.session_state['access_token'] = spotify_api.access_token
         
         status_text = st.markdown('Searching for you in the database...')
         session = create_sqlalchemy_session()
@@ -124,7 +130,14 @@ def main():
             
         st.markdown('Note that if you refresh or close the page you wil need to reauthenticate with spotify on the main page')
 
-
+        st.markdown('For more information about how your data is stored and managed, see the data privacy page')
+    else:
+        st.markdown('Want to see how it works before logging in? Press the button below to login as the creator of this site (twsweeney). Please just promise not to judge my music taste :)')
+        if st.button('Login as twsweeney'):
+            st.session_state['user_id'] = 'twsweeney'
+            st.session_state['display_name'] = 'twsweeney'
+            st.markdown('You are successfully logged in as twsweeney! To log out and log in as yourself, refresh the website and authenticate at the top of the home page.')
+            
 
 if __name__ == '__main__':
     main()
