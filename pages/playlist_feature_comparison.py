@@ -143,7 +143,7 @@ def main():
         feature_histogram_fig, playlist_median_1, playlist_median_2 = plot_feature_histogram(session, song_id_list_1=song_id_list_1, song_id_list_2=song_id_list_2,
                                                                                     playlist_name_1=playlist_name_1, playlist_name_2=playlist_name_2, 
                                                                                     feature=selected_feature)
-        st.plotly_chart(feature_histogram_fig)
+        st.plotly_chart(feature_histogram_fig, use_container_width=True)
         display_feature_metrics(feature=selected_feature, playlist_name_1=playlist_name_1, playlist_name_2=playlist_name_2,  
                                 playlist_median_1=playlist_median_1, playlist_median_2=playlist_median_2)
 

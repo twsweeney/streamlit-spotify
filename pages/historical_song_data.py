@@ -117,7 +117,7 @@ def main():
         fig = px.line(median_data, x='date_bin', y=selected_feature,
                     title=f'Median Song {selected_feature} over Time ({selected_range})',
                     labels={'date_bin': 'Date Added', selected_feature: f'Median {selected_feature}'})  
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
         st.markdown('This chart reflects the statistics of songs that you added to a playlist that you own at a certain time.\nIt is NOT a reflection of your listening.')
 
 

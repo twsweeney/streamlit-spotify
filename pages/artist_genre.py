@@ -61,9 +61,9 @@ def main():
         artist_genre_df_1 = get_artist_genre_df(session, song_id_list_1)
         artist_genre_df_2 = get_artist_genre_df(session, song_id_list_2)
         fig1 = plot_artist_genres(artist_genre_df_1, playlist_title=playlist_name_1)
-        st.plotly_chart(fig1)
+        st.plotly_chart(fig1, use_container_width=True)
         fig2 = plot_artist_genres(artist_genre_df_2, playlist_title=playlist_name_2)
-        st.plotly_chart(fig2)
+        st.plotly_chart(fig2, use_container_width=True)
 
 
 

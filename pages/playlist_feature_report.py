@@ -64,7 +64,7 @@ def main():
             selected_feature ='duration_seconds'
         selected_feature_df = get_selected_feature_df(playlist_averages_df, selected_feature)
         fig = display_feature_histogram(selected_feature_df, selected_feature)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
         with st.expander(f"Clich to see all of the data for {selected_feature}", expanded=False):
             st.write(selected_feature_df)
 if __name__ == '__main__':
