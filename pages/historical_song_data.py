@@ -24,7 +24,7 @@ def get_song_df(session, current_user_id:str):
 def main():
 
     if 'user_id' not in st.session_state:
-            st.markdown('# you are not signed in. Head back to the home page to sign in!')
+        st.markdown('# you are not signed in. Head back to the home page to sign in!')
     else:
         current_user_id = st.session_state['user_id']
         current_user_display_name = st.session_state["display_name"]
@@ -40,3 +40,5 @@ def main():
 
 
 
+if __name__ == '__main__':
+    main()
