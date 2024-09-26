@@ -7,6 +7,7 @@ import base64
 import random
 
 from streamlit_utils import get_secret, get_ec2_public_ip
+from typing import List, Dict, Any, Optional
 
 class SpotifyAPI:
     def __init__(self):
@@ -95,85 +96,133 @@ class SpotifyAPI:
         self.user_id = self.get_current_user()['id']
         self.display_name = self.get_current_user()['display_name']
 
-
-
-    def get_data(self, endpoint, get_tracks_request=False, multiple_items=True, chunked=False, params=None):
-        all_data = []
-        seen_ids = set()
-        url = self.base_url + endpoint 
-
+    def _make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        url = self.BASE_URL + endpoint
         response = requests.get(url, headers=self.headers, params=params)
-        response_data = response.json()
+
         if response.status_code == 429:
             retry_after = int(response.headers.get('Retry-After', 1))
-            print(f'429 code, retrying after: {retry_after} seconds')
+            print(f'Rate limit exceeded. Retrying after {retry_after} seconds')
             time.sleep(retry_after)
-            return self.get_data(endpoint, params)
+            return self._make_request(endpoint, params)
+
         response.raise_for_status()
-        try:
-            total = response_data['total']
-            limit = response_data['limit']
-            if (total == 0) and (limit==0):
-                return []
-            n_pages = (total + limit + 1) // limit
-        except KeyError:
-            n_pages = 1 
-            limit = None 
-            total = None 
+        return response.json()
 
-        if chunked:
-            all_data = response_data
-            return all_data
-        for i in range(n_pages):
-            if limit:
-                offset = i * limit
-            else:
-                offset = 0
-            params = {'offset':offset}
-            response = requests.get(url, headers=self.headers, params=params)
-            response_data = response.json()
-            if multiple_items:
-                for item_index, item in enumerate(response_data.get('items',[])):
-                    item_id = item.get('track', {}).get('id') if get_tracks_request else item.get('id')
-                    if item_id not in seen_ids:
-                        all_data.append(item)
-                        seen_ids.add(item_id)
-            # if we enter this else statement we are only returning data from one item such as one song 
-            else:
-                all_data.append(response_data)
+    def _paginate_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None, get_tracks: bool = False) -> List[Dict[str, Any]]:
+        all_items = []
+        seen_ids = set()
+        params = params or {}
+
+        while True:
+            data = self._make_request(endpoint, params)
+            items = data.get('items', [])
+
+            for item in items:
+                item_id = item.get('track', {}).get('id') if get_tracks else item.get('id')
+                if item_id not in seen_ids:
+                    all_items.append(item)
+                    seen_ids.add(item_id)
+
+            if not data.get('next'):
                 break
-        return all_data
 
-    def get_current_user(self):
-        endpoint = 'me'
-        url = self.base_url + endpoint
-        response = requests.get(url, headers=self.headers)
-        response_data = response.json()
-        return response_data
+            params['offset'] = params.get('offset', 0) + params.get('limit', 20)
+
+        return all_items
+
+    def get_current_user(self) -> Dict[str, Any]:
+        return self._make_request('me')
+
+    def get_user_playlists(self) -> List[Dict[str, Any]]:
+        return self._paginate_request('me/playlists', params={'limit': 50})
+
+    def get_playlist_items(self, playlist_id: str) -> List[Dict[str, Any]]:
+        return self._paginate_request(f'playlists/{playlist_id}/tracks', params={'limit': 50}, get_tracks=True)
+
+    def get_audio_features(self, song_ids: List[str]) -> Dict[str, Any]:
+        return self._make_request('audio-features', params={'ids': ','.join(song_ids)})
+
+    def get_artist_genre(self, artist_ids: List[str]) -> Dict[str, Any]:
+        return self._make_request('artists', params={'ids': ','.join(artist_ids)})
+
+    # def get_data(self, endpoint, get_tracks_request=False, multiple_items=True, chunked=False, params=None):
+    #     all_data = []
+    #     seen_ids = set()
+    #     url = self.base_url + endpoint 
+
+    #     response = requests.get(url, headers=self.headers, params=params)
+    #     response_data = response.json()
+    #     if response.status_code == 429:
+    #         retry_after = int(response.headers.get('Retry-After', 1))
+    #         print(f'429 code, retrying after: {retry_after} seconds')
+    #         time.sleep(retry_after)
+    #         return self.get_data(endpoint, params)
+    #     response.raise_for_status()
+    #     try:
+    #         total = response_data['total']
+    #         limit = response_data['limit']
+    #         if (total == 0) and (limit==0):
+    #             return []
+    #         n_pages = (total + limit + 1) // limit
+    #     except KeyError:
+    #         n_pages = 1 
+    #         limit = None 
+    #         total = None 
+
+    #     if chunked:
+    #         all_data = response_data
+    #         return all_data
+    #     for i in range(n_pages):
+    #         if limit:
+    #             offset = i * limit
+    #         else:
+    #             offset = 0
+    #         params = {'offset':offset}
+    #         response = requests.get(url, headers=self.headers, params=params)
+    #         response_data = response.json()
+    #         if multiple_items:
+    #             for item_index, item in enumerate(response_data.get('items',[])):
+    #                 item_id = item.get('track', {}).get('id') if get_tracks_request else item.get('id')
+    #                 if item_id not in seen_ids:
+    #                     all_data.append(item)
+    #                     seen_ids.add(item_id)
+    #         # if we enter this else statement we are only returning data from one item such as one song 
+    #         else:
+    #             all_data.append(response_data)
+    #             break
+    #     return all_data
+
+    # def get_current_user(self):
+    #     endpoint = 'me'
+    #     url = self.base_url + endpoint
+    #     response = requests.get(url, headers=self.headers)
+    #     response_data = response.json()
+    #     return response_data
 
 
-    def get_user_playlists(self):
-        endpoint = 'me/playlists'
-        params = {'limit':50}
-        return self.get_data(endpoint, params=params)
+    # def get_user_playlists(self):
+    #     endpoint = 'me/playlists'
+    #     params = {'limit':50}
+    #     return self.get_data(endpoint, params=params)
 
 
-    def get_playlist_items(self, playlist_id):
-        endpoint = f'playlists/{playlist_id}/tracks'
-        params = {'limit':50}
-        return self.get_data(endpoint, get_tracks_request=True, params=params)
+    # def get_playlist_items(self, playlist_id):
+    #     endpoint = f'playlists/{playlist_id}/tracks'
+    #     params = {'limit':50}
+    #     return self.get_data(endpoint, get_tracks_request=True, params=params)
     
-    def get_audio_features(self, song_ids):
-        params = {
-            'ids': ','.join(song_ids)
-        }
-        endpoint = f'audio-features'
-        return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
+    # def get_audio_features(self, song_ids):
+    #     params = {
+    #         'ids': ','.join(song_ids)
+    #     }
+    #     endpoint = f'audio-features'
+    #     return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
 
-    def get_artist_genre(self, artist_ids):
-        params = {
-            'ids': ','.join(artist_ids)
-        }
-        endpoint = f'artists'
-        return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
+    # def get_artist_genre(self, artist_ids):
+    #     params = {
+    #         'ids': ','.join(artist_ids)
+    #     }
+    #     endpoint = f'artists'
+    #     return self.get_data(endpoint, get_tracks_request=False, multiple_items=False, chunked=True, params=params)
 
