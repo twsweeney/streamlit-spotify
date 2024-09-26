@@ -104,9 +104,8 @@ def main():
         binned_data = dynamic_bins(filtered_data, days)
         median_data = calculate_median(binned_data, selected_feature)
 
-            # Plot the result using Plotly
-        ylabel = 'median_' + selected_feature
-        fig = px.line(median_data, x='date_bin', y=ylabel,
+        # Plot the result using Plotly
+        fig = px.line(median_data, x='date_bin', y=selected_feature,
                     title=f'Median Song {selected_feature} over Time ({selected_range})',
                     labels={'date_bin': 'Date Added', selected_feature: f'Median {selected_feature}'})  
 
