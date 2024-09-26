@@ -20,7 +20,7 @@ def get_song_feature_df(session, song_id_list):
 
     SELECT s.song_id, s.title, s.popularity, s.acousticness, s.danceability, 
                 s.energy, s.instrumentalness, s.liveness, s.loudness,
-                s.speechiness, s.tempo, s.valence, GROUP_CONCAT(a.name SEPARATOR ', ') AS artists
+                s.speechiness, s.tempo, s.valence, s.duration_ms * 1000 AS duration_seconds, GROUP_CONCAT(a.name SEPARATOR ', ') AS artists
     FROM songs AS s 
     JOIN song_artists AS sa ON s.song_id=sa.song_id
     JOIN artists AS a ON sa.artist_id=a.artist_id
@@ -86,9 +86,11 @@ def display_feature_metrics(feature, playlist_name_1, playlist_name_2, playlist_
     if playlist_median_1 > playlist_median_2:
         more_less = 'more'
         higher_lower = 'higher'
+        longer_shorter = 'longer'
     else:
         more_less = 'less'
         higher_lower = 'lower'
+        longer_shorter = 'shorter'
 
     grammar_map = {
         'popularity': f'The songs on {playlist_name_1} are {more_less} popular than the songs than the songs on {playlist_name_2}!', 
@@ -100,7 +102,8 @@ def display_feature_metrics(feature, playlist_name_1, playlist_name_2, playlist_
         'loudness': f'The songs on {playlist_name_1} are {more_less} loud than the songs on {playlist_name_2}!',
         'speechiness': f'The songs on {playlist_name_1} have {more_less} speechiness than the songs on {playlist_name_2}!',
         'tempo': f'The songs on {playlist_name_1} have {higher_lower} tempo than the songs on {playlist_name_2}!', 
-        'valence': f'The songs on {playlist_name_1} have {more_less} valence than the songs on {playlist_name_2}!'}
+        'valence': f'The songs on {playlist_name_1} have {more_less} valence than the songs on {playlist_name_2}!',
+        'duration_seconds': f'The songs on {playlist_name_1} are {longer_shorter} than the songs on {playlist_name_2}!'}
 
     col1, col2 = st.columns(2)
     with col1:

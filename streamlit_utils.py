@@ -164,14 +164,14 @@ def display_feature_description(feature:str):
         'loudness':'The overall loudness of a track in decibels (dB). Values closer to zero are louder, for example -5dB is louder than -10dB.',
         'speechiness':'Speechiness detects the presence of spoken words in a track.', 
         'tempo':'The overall estimated tempo of a track in beats per minute (BPM). ', 
-        'valence':'A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).'
-    }
+        'valence':'A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).',
+        'duration_seconds':'The duration of the song in units of seconds'}
     with st.expander("Click here to see details about the selected feature"):
         st.write(feature_to_description[feature])
 
 def draw_feature_selectbox():
     '''Display the feature selectbox'''
-    features = ['popularity', 'acousticness', 'danceability', 
+    features = ['popularity', 'duration_seconds', 'acousticness', 'danceability', 
              'energy', 'instrumentalness', 'liveness', 'loudness',
              'speechiness', 'tempo', 'valence']
     label = 'What feature would you like to see?'
