@@ -35,7 +35,8 @@ def plot_artist_genres(df:pd.DataFrame, playlist_title:str) -> go.Figure:
         yaxis=dict(autorange='reversed'),
         template='plotly_white'
     )
-    st.plotly_chart(fig)
+    return fig
+
 def main():
     if 'user_id' not in st.session_state:
         st.markdown('## You are not signed in. Head back to the home page to sign in!')
