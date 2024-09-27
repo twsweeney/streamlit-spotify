@@ -6,13 +6,13 @@ A web application that provides personalized insights into a user's Spotify list
 
 To explore the site yourself and enter your own data check out the link below! 
 
-[streamlit-site](ec2-18-223-158-104.us-east-2.compute.amazonaws.com:8501)
+[Visit the Streamlit App](http://ec2-18-223-158-104.us-east-2.compute.amazonaws.com:8501)
 
 ## Features
-- Spotify authentication
-- Retrieval and storage of user's Spotify data
-- Deletion of user data upon request
-- Visualization of playlist insights
+- Spotify Authentication: Secure login with Spotify.
+- Data Retrieval and Storage: Fetches and stores user’s Spotify data.
+- Data Deletion: Users can request to have their data deleted.
+- Playlist Insights: Visualizes data-driven insights on playlists.
 
 ## Technologies Used
 - Python
