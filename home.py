@@ -16,8 +16,8 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str) -> None:
     total_playlists = len(playlist_id_list)
 
 
-    track_counts = [spotify.get_playlist_track_count(playlist_id) for playlist_id in playlist_id_list]
-    median_tracks = np.median(track_counts)
+    # track_counts = [spotify.get_playlist_track_count(playlist_id) for playlist_id in playlist_id_list]
+    # median_tracks = np.median(track_counts)
     # Create a status bar and text
     progress_bar = st.progress(0)
     status_text = st.empty()
