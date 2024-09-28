@@ -118,7 +118,7 @@ class SpotifyAPI:
 
             for item in items:
                 # if item is None then skip
-                if not item:
+                if not item or (get_tracks and item.get('track') is None):
                     continue
                 item_id = item.get('track', {}).get('id') if get_tracks else item.get('id')
                 if item_id not in seen_ids:
