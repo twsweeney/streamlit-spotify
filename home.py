@@ -6,28 +6,27 @@ from database.loading import *
 from streamlit_utils import check_if_user_exists
 import time
 
-def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str, verbose=True) -> None:
+def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str) -> None:
     user_playlists = spotify.get_user_playlists()
     playlist_data = extract_playlist_details(user_playlists, app_user_id)
     session = create_sqlalchemy_session()
     # save all user playlist data to the database
     load_playlists_data(session, playlist_data)
     playlist_id_list = playlist_data['playlist_id']
-    # Create a progress bar
+    total_playlists = len(playlist_id_list)
+
+
+    track_counts = [spotify.get_playlist_track_count(playlist_id) for playlist_id in playlist_id_list]
+    median_tracks = np.median(track_counts)
+    # Create a status bar and text
     progress_bar = st.progress(0)
-    # Placeholder for displaying the current playlist being processed
     status_text = st.empty()
-    # Processeach playlist
     start_time = time.time()
     total_playlists = len(playlist_id_list)
     remaining_time = None
     for index, playlist_id in enumerate(playlist_id_list):
         
-        playlist_name = playlist_data['name'][index]
-        if playlist_name == 'Songs With No Words':
-            verbose =True
-            st.markdown('Debugging songs wiht no words')
-        
+        playlist_name = playlist_data['name'][index]        
         # Update the status text
         if remaining_time:
             status_text.text(f"Getting data for playlist: {playlist_name} \n(Estimated time remaining: {int(remaining_time)} seconds)")
@@ -38,33 +37,28 @@ def fetch_and_store_data(spotify:SpotifyAPI, app_user_id:str, verbose=True) -> N
         if len(playlist_items) == 0:
             continue
         # call the api for song data and store in the database
-        if verbose:
-            st.markdown('Extracting Song Data')
+
         song_data = extract_song_data(playlist_items)
         load_song_data(session, song_data)
-        if verbose:
-            st.markdown('Loading Song Data')
+
         # Load data into the playlist songs table
         # Playlist songs links together the relationship between a playlist and the songs on it
         # This is a many to many relationship as one song can be on multiple playlists, and one playlist can have multiple songs
-        if verbose:
-            st.markdown('playlist Song Data')
+
         song_playlist_data = extract_song_playlist_data(playlist_id, playlist_items)
         update_playlist_songs_dates(session, playlist_id,song_playlist_data)
         load_playlists_songs_data(session,  song_playlist_data)
 
         # Since some song feature data is located at a different endpoint in the spotify api, it must be collected seprately
         # First I check the database to see if the data we need is already in the database 
-        if verbose:
-            st.markdown('Song feature Data')
+
         null_song_ids_chunked = get_song_ids_with_nulls(session, playlist_id)        
         for chunk in null_song_ids_chunked:
             song_features = spotify.get_audio_features(chunk)
             song_feature_data = extract_song_features_data(song_features)
             load_song_features_data(session, song_feature_data)
         # Get the artist data for each song and upload it to the database
-        if verbose:
-            st.markdown('Artist Data')
+
         artist_data = extract_artist_data(playlist_items)
         load_artist_data(session, artist_data)
         load_song_artist_data(session, artist_data)
