@@ -8,6 +8,10 @@ To explore the site yourself and enter your own data check out the link below!
 
 [Visit the Streamlit App](http://ec2-18-223-158-104.us-east-2.compute.amazonaws.com:8501)
 
+Since the app is still in development, for users to authenticate they must be added to a whitelist by me. If you are interested in testing the app out with your data please send me an email at twsweeney13@gmail.com and I will be happy to add you!
+
+If you just want to test the app out, feel free to press the "Login as test user" button on the homepage to get a preview
+
 ## Features
 - Spotify Authentication: Secure login with Spotify.
 - Data Retrieval and Storage: Fetches and stores user’s Spotify data.
