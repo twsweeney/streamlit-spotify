@@ -131,6 +131,17 @@ def display_guess_df():
     styled_df = raw_df.style.apply(highlight_rows, axis=1)
     st.dataframe(styled_df)
 
+def display_correct_answer():
+    n_artists = len(st.session_state['artists_name_list'])
+    items = st.session_state['artists_name_list']
+    if n_artists == 1:
+        artist = items[0]
+    else:
+        artist = ', '.join(items[:-1]) + ', and ' + items[-1]
+    
+
+    st.write(f'The answer was: {st.session_state["song_name"]} by {artist}')
+
 
 
 
@@ -240,17 +251,17 @@ def main():
             if st.session_state['correct_song_answer'] and not st.session_state['correct_artist_answer']:
                 st.write('You got the song right!')
                 st.write('Maybe if you applied yourself you could get the artist right too')
-
-                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
+                display_correct_answer()
             elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
                 st.write('You got the artist but not the song which is just dissapointing honestly')
-                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
+                display_correct_answer()
             elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
                 st.write( 'congrats BUDDY you won...')
-                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
+                display_correct_answer()
+                st.write('but u already knew that... dont get a big head about this')
             else:
                 st.write('You lost!!!!!!!!!!!!!!!!')
-                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
+                display_correct_answer()
             if 'round' in st.session_state:
                 del st.session_state['round']
 
