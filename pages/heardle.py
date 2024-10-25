@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_utils import *
 import numpy as np 
 from spotify_api.api import SpotifyAPI
+import time
 
 
 def display_single_playlist_selector(df): 
@@ -38,6 +39,13 @@ def get_audio_preview(song_id:str) -> str:
     # st.write(track_data)
 
 
+# Function to play and stop audio after snippet_duration
+def play_audio_snippet(duration:int):
+    st.session_state.is_playing = True
+    time.sleep(duration)  # Simulate the audio playing for 'duration' seconds
+    st.session_state.is_playing = False
+    st.write("Audio snippet ended")
+
 # pick a track
 def main():
     if 'user_id' not in st.session_state:
@@ -64,13 +72,56 @@ def main():
 
 
         song_data = get_audio_preview(random_song_id)
-        st.write(song_data)
 
         audio_url = song_data['preview_url']
+        song_name = song_data['name']
+        song_album = song_data['album']['name']
+        artists_name_list = [artist['name'] for artist in song_data['artists']]
 
-        st.write(audio_url)
+
+        # Initialize session state for round tracking
+        if 'round' not in st.session_state:
+            st.session_state['round'] = 1  
+            st.session_state['max_round'] = 6  
+            st.session_state['is_playing'] = False
+
+        round_durations_map = {
+            1:1,
+            2:3,
+            3:5,
+            4:10,
+            5:20,
+            6:30
+        }
+        snippet_duration = round_durations_map[st.session_state['round']]
+        st.write(f"Round {st.session_state.round}: Listening for {snippet_duration} seconds")
+
 
         st.audio(audio_url)
+        st.write(f'Correct answer: {song_name}')
+        # Button to start audio snippet
+
+        if st.button("Play Snippet"):
+            if not st.session_state['is_playing']:
+                play_audio_snippet(snippet_duration)
+
+        
+        st.session_state['guess_input'] = st.text_input("Guess the song name and artist (format: Song - Artist):")
+
+        # Button to move to the next round (guess feedback can be implemented here)
+        if st.button("Submit Answer"):
+            st.session_state['correct_guess'] = st.session_state['guess_input'].strip.lower() == song_name.strip().lower()
+        
+        if not st.session_state['correct_guess']:
+            # they guessed wrong
+            if st.session_state['round'] < st.session_state['max_round']:
+                st.session_state['round'] += 1 
+                
+        else:
+            st.markdown(f'You win! The correct song was: {song_name}')
+
+
+
 
 
 
