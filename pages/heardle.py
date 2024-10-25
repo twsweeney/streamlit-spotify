@@ -237,15 +237,15 @@ def main():
 
         elif st.session_state['game_state'] == 'game_over':
 
-            if st.session_state['correct_song_answer'] and not st.session_state['correct_artist']:
+            if st.session_state['correct_song_answer'] and not st.session_state['correct_artist_answer']:
                 st.write('You got the song right!')
                 st.write('Maybe if you applied yourself you could get the artist right too')
 
                 st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
-            elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist']:
+            elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
                 st.write('You got the artist but not the song which is just dissapointing honestly')
                 st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
-            elif st.session_state['correct_song_answer'] and st.session_state['correct_artist']:
+            elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
                 st.write( 'congrats BUDDY you won...')
                 st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
             else:
