@@ -54,17 +54,7 @@ def get_song_data(current_user_id:str):
     song_data = get_audio_preview(random_song_id)
     return song_data
 
-def play_audio():
-    round_durations_map = {
-        1:2,
-        2:5,
-        3:10,
-        4:15,
-        5:20,
-        6:30
-    }
-    snippet_duration = round_durations_map[st.session_state['round']]
-    
+def play_audio(snippet_duration:int):
 
 
     html_audio = f"""
@@ -113,16 +103,27 @@ def main():
         
 
 
-        if st.session_state['game_state'] == 'guess':
+        elif st.session_state['game_state'] == 'guess':
             if 'round' not in st.session_state:
                 st.session_state['round'] = 1
-            st.session_state['correct_guess'] = False
+            st.session_state['correct_guess'] = False\
+            
+            round_durations_map = {
+                1:2,
+                2:5,
+                3:10,
+                4:15,
+                5:20,
+                6:30
+            }
+            snippet_duration = round_durations_map[st.session_state['round']]
+            
+            st.markdown(f"Currently on round {st.session_state['round']}/6")
+            st.markdown()
 
 
-            # st.write(f"Round {st.session_state['round']}: Listening for {snippet_duration} seconds")
-
-            if st.button('Play Audio Snippet'):
-                play_audio()
+            if st.button(f'Play {snippet_duration} Second Audio Snippet'):
+                play_audio(snippet_duration)
         
             st.write(f"Correct answer for debugging: {st.session_state['song_name']}")
             
@@ -140,7 +141,7 @@ def main():
 
             
 
-        if st.session_state['game_state'] == 'game_over':
+        elif st.session_state['game_state'] == 'game_over':
 
             if st.session_state['correct_answer']:
                 st.write('You win! congrats BUDDY')
