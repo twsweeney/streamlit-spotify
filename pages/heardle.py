@@ -105,7 +105,8 @@ def highlight_rows(row):
 def display_guess_df():
     raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
     styled_df = raw_df.style.apply(highlight_rows, axis=1)
-    st.dataframe(styled_df)
+    display_df = styled_df.loc[['song', 'artist']]
+    st.dataframe(display_df)
 
 
 
@@ -172,7 +173,7 @@ def main():
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
                 play_audio(snippet_duration)
         
-            st.write(f"Correct answer for debugging: {st.session_state['song_name']}")
+            st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artist_name_list']}")
             
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
