@@ -148,4 +148,5 @@ class SpotifyAPI:
     def get_artist_genre(self, artist_ids: List[str]) -> Dict[str, Any]:
         return self._make_request('artists', params={'ids': ','.join(artist_ids)})
 
-    
+    def get_track(self, song_id:str) -> Dict[str, Any]:
+        return self._make_request(f'tracks/{song_id}')
