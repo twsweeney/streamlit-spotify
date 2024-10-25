@@ -105,7 +105,6 @@ def highlight_rows(row):
 def display_guess_df():
     raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
     styled_df = raw_df.style.apply(highlight_rows, axis=1)
-    display_df = styled_df[['song', 'artist']]
     st.dataframe(styled_df)
 
 
