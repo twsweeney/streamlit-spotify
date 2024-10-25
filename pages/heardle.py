@@ -31,6 +31,7 @@ def get_songs(session:Session, playlist_id:str, current_user_id:str) -> List[str
 
 def get_audio_preview(song_id:str) -> str:
     spotify_api = SpotifyAPI()
+    spotify_api.initialize_after_auth()
 
     track_data = spotify_api.get_track(song_id)
     return track_data
