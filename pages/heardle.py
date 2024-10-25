@@ -85,13 +85,22 @@ def evaluate_answer(song_guess:str, artist_guess:str):
     return clean_song_input == song_answer, artist_correct
 
 def highlight_rows(row):
+    # Initialize the highlight list for both song and artist
+    highlights = [''] * len(row)  # Create a list of empty strings for each column
+    
     # Highlight logic for song
-    song_highlight = 'background-color: green' if row['correct_song'] is True else 'background-color: red' if row['correct_song'] is False else ''
-    
+    if row['correct_song'] is True:
+        highlights[0] = 'background-color: green'  # Green for correct song
+    elif row['correct_song'] is False:
+        highlights[0] = 'background-color: red'  # Red for incorrect song
+        
     # Highlight logic for artist
-    artist_highlight = 'background-color: green' if row['correct_artist'] is True else 'background-color: red' if row['correct_artist'] is False else ''
+    if row['correct_artist'] is True:
+        highlights[1] = 'background-color: green'  # Green for correct artist
+    elif row['correct_artist'] is False:
+        highlights[1] = 'background-color: red'  # Red for incorrect artist
     
-    return [song_highlight, artist_highlight]
+    return highlights  # Return the list of styles
 
 def display_guess_df():
     raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
