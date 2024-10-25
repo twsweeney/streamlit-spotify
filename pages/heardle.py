@@ -206,7 +206,7 @@ def main():
         if st.session_state['game_state'] == 'start':
             
             selectbox_options = [ 'Use all playlists I have created', 'Use all playlists I have saved', 'Select a specific playlist']
-            option = st.selectbox(options=selectbox_options)
+            option = st.selectbox(label='Where should songs be selected from?',options=selectbox_options)
 
 
 
