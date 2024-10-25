@@ -119,7 +119,6 @@ def main():
             snippet_duration = round_durations_map[st.session_state['round']]
             
             st.markdown(f"Currently on round {st.session_state['round']}/6")
-            st.markdown()
 
 
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
