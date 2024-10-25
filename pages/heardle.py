@@ -173,6 +173,7 @@ def main():
 
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
                 play_audio(snippet_duration)
+                time.sleep(snippet_duration + 0.2)
                 st.rerun()
 
         
