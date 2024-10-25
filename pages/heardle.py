@@ -53,7 +53,7 @@ def main():
         
         playlist_df = get_playlist_df(session, current_user_id)
 
-        selected_playlist_id, selected_playlist_name = display_playlist_selector(playlist_df)
+        selected_playlist_id, selected_playlist_name = display_single_playlist_selector(playlist_df)
 
         st.markdown(f'Selected playlist: {selected_playlist_name}')
         song_id_list = get_songs(session=session, playlist_id=selected_playlist_id, current_user_id=current_user_id)
