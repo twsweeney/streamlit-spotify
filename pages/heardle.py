@@ -64,20 +64,20 @@ def play_audio():
         6:30
     }
     snippet_duration = round_durations_map[st.session_state['round']]
-    st.write(f"Round {st.session_state['round']}: Listening for {snippet_duration} seconds")
+    
 
-    if st.button('Play Audio'):
-        html_audio = f"""
-        <audio id="audio" src="{st.session_state['audio_url']}" autoplay></audio>
-        <script>
-        var audio = document.getElementById('audio');
-        audio.play();
-        setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
-        </script>
-        """
 
-        # Embed the HTML audio player in Streamlit without controls
-        st.components.v1.html(html_audio, height=0)
+    html_audio = f"""
+    <audio id="audio" src="{st.session_state['audio_url']}" autoplay></audio>
+    <script>
+    var audio = document.getElementById('audio');
+    audio.play();
+    setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
+    </script>
+    """
+
+    # Embed the HTML audio player in Streamlit without controls
+    st.components.v1.html(html_audio, height=0)
 
 def evaluate_answer(user_input):
     clean_input = user_input.strip().lower()
@@ -107,7 +107,9 @@ def main():
             st.session_state['audio_url'] = song_data['preview_url']
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
-            st.session_state['game_state'] = 'guess'
+
+            if st.button('Click here to start the game!'):
+                st.session_state['game_state'] = 'guess'
         
 
 
@@ -115,6 +117,9 @@ def main():
             if 'round' not in st.session_state:
                 st.session_state['round'] = 1
             st.session_state['correct_guess'] = False
+
+
+            # st.write(f"Round {st.session_state['round']}: Listening for {snippet_duration} seconds")
 
             if st.button('Play Audio Snippet'):
                 play_audio()
@@ -131,6 +136,7 @@ def main():
 
                 else:
                     st.session_state['round'] += 1 
+                    st.write(f'Wrong answer! Moving on to round {st.session_state["round"]}/6')
 
             
 
