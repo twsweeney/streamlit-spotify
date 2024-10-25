@@ -100,6 +100,7 @@ def main():
 
             if st.button('Click here to start the game!'):
                 st.session_state['game_state'] = 'guess'
+                st.rerun()
         
 
 
@@ -118,7 +119,7 @@ def main():
             }
             snippet_duration = round_durations_map[st.session_state['round']]
             
-            st.markdown(f"Currently on round {st.session_state['round']}/6")
+            st.markdown(f"Currently on round {st.session_state['round']}/{MAX_ROUNDS}")
 
 
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
@@ -131,12 +132,14 @@ def main():
                 st.session_state['correct_answer'] = evaluate_answer(user_guess)
 
                 # Set state to gameover if this is the last round, or they got it right
-                if st.session_state['round'] == 6 or st.session_state['correct_answer']:
+                if st.session_state['round'] == MAX_ROUNDS or st.session_state['correct_answer']:
                     st.session_state['game_state'] = 'game_over'
+                    st.rerun()
 
                 else:
                     st.session_state['round'] += 1 
-                    st.write(f'Wrong answer! Moving on to round {st.session_state["round"]}/6')
+                    st.rerun()
+                    # st.write(f'Wrong answer! Moving on to round {st.session_state["round"]}/{MAX_ROUNDS}')
 
             
 
@@ -151,6 +154,7 @@ def main():
 
             if st.button('Click here to restart and play again'):
                 st.session_state['game_state'] = 'start'
+                st.rerun()
 
 
 
