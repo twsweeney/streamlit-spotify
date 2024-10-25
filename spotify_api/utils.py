@@ -19,6 +19,18 @@ def extract_playlist_details(user_playlists:List[Dict], app_user_id:str) -> Dict
     }
     return playlists_data
 
+def extract_liked_song_details(liked_songs:List[Dict], app_user_id:str) -> Dict:
+    '''formats liked songs into a playlist'''
+    liked_songs_data = {
+        'playlist_id': f'{app_user_id}_liked_songs',
+        'name': 'Liked Songs',
+        'owner_id': app_user_id,
+        'is_collaborative':False,
+        app_user_id:app_user_id
+    }
+
+
+
 def format_release_date(date_str:str) -> Optional[str]:
     '''Handle the different formats of input strings and fill in 1 if there is no value there. '''
     if not date_str:

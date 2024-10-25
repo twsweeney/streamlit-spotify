@@ -174,12 +174,14 @@ def main():
                                                     "correct_artist": [None] * MAX_ROUNDS}
 
 
-
+            st.write('Important note: This snippet is not necessarily the start of the song.\n Spotify creates the snippets and they are usually in the middle of a song.')
             if st.button('Click here to start the game!'):
-                st.write('Important note: This snippet is not necessarily the start of the song.\n Spotify creates the snippets and they are usually in the middle of a song.')
+                
 
                 st.session_state['game_state'] = 'guess'
                 st.rerun()
+            
+            
         
 
 

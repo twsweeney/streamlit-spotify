@@ -150,3 +150,6 @@ class SpotifyAPI:
 
     def get_track(self, song_id:str) -> Dict[str, Any]:
         return self._make_request(f'tracks/{song_id}')
+    
+    def get_saved_tracks(self) -> List[Dict[str, Any]]:
+        return self._paginate_request('me/tracks', params={'limit': 50})
