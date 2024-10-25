@@ -219,9 +219,10 @@ def main():
                 if st.session_state['correct_artist_index'] >= 0:
                     st.session_state['guess_dictionary']['artist'][current_round-1] = st.session_state['artists_name_list'][st.session_state['correct_artist_index']]
                     st.session_state['guess_dictionary']['correct_artist'][current_round-1] = True
+                    st.session_state['correct_artist_answer'] = True
                 else:
                     st.session_state['guess_dictionary']['correct_artist'][current_round-1] = False
-                
+                    st.session_state['correct_artist_answer'] = False
 
                 # Set state to gameover if this is the last round, or they got it right
                 if current_round == MAX_ROUNDS or (st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']):
