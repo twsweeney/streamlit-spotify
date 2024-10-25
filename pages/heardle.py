@@ -56,10 +56,10 @@ def get_song_data(current_user_id:str):
 
 def play_audio():
     round_durations_map = {
-        1:1,
-        2:3,
-        3:5,
-        4:10,
+        1:2,
+        2:5,
+        3:10,
+        4:15,
         5:20,
         6:30
     }
@@ -127,7 +127,7 @@ def main():
             st.write(f"Correct answer for debugging: {st.session_state['song_name']}")
             
             user_guess = st.text_input("Guess the song name and artist (format: Song - Artist):")
-            if user_guess:
+            if st.button('Submit Answer'):
                 st.session_state['correct_answer'] = evaluate_answer(user_guess)
 
                 # Set state to gameover if this is the last round, or they got it right
@@ -146,8 +146,8 @@ def main():
                 st.write('You win! congrats BUDDY')
             else:
                 st.write('You lost!!!!!!!!!!!!!!!!')
-            
-            del st.session_state['round']
+            if 'round' in st.session_state:
+                del st.session_state['round']
 
             if st.button('Click here to restart and play again'):
                 st.session_state['game_state'] = 'start'
