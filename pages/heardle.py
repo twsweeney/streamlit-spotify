@@ -172,7 +172,7 @@ def main():
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
                 play_audio(snippet_duration)
         
-            st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artist_name_list']}")
+            st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artists_name_list']}")
             
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
