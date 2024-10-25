@@ -240,16 +240,16 @@ def main():
                 st.write('You got the song right!')
                 st.write('Maybe if you applied yourself you could get the artist right too')
 
-                st.write(f'The answer was: {st.session_state['song_name']} by {st.session_state['artists_name_list']}')
+                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
             elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist']:
                 st.write('You got the artist but not the song which is just dissapointing honestly')
-                st.write(f'The answer was: {st.session_state['song_name']} by {st.session_state['artists_name_list']}')
+                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
             elif st.session_state['correct_song_answer'] and st.session_state['correct_artist']:
                 st.write( 'congrats BUDDY you won...')
-                st.write(f'The answer was: {st.session_state['song_name']} by {st.session_state['artists_name_list']}')
+                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
             else:
                 st.write('You lost!!!!!!!!!!!!!!!!')
-                st.write(f'The answer was: {st.session_state['song_name']} by {st.session_state['artists_name_list']}')
+                st.write(f'The answer was: {st.session_state["song_name"]} by {st.session_state["artists_name_list"]}')
             if 'round' in st.session_state:
                 del st.session_state['round']
 
