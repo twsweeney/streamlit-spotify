@@ -69,11 +69,36 @@ def play_audio(snippet_duration:int):
     # Embed the HTML audio player in Streamlit without controls
     st.components.v1.html(html_audio, height=0)
 
-def evaluate_answer(user_input):
-    clean_input = user_input.strip().lower()
-    answer = st.session_state['song_name'].strip().lower()
+def evaluate_answer(song_guess:str, artist_guess:str):
 
-    return clean_input == answer
+    
+
+    clean_song_input = song_guess.strip().lower()
+    clean_artist_input = artist_guess.strip().lower()
+
+    song_answer = st.session_state['song_name'].strip().lower()
+
+    clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
+
+    artist_correct = clean_artist_input in clean_artist_list
+
+    return clean_song_input == song_answer, artist_correct
+
+def highlight_rows(row):
+    # Highlight logic for song
+    song_highlight = 'background-color: green' if row['correct_song'] is True else 'background-color: red' if row['correct_song'] is False else ''
+    
+    # Highlight logic for artist
+    artist_highlight = 'background-color: green' if row['correct_artist'] is True else 'background-color: red' if row['correct_artist'] is False else ''
+    
+    return [song_highlight, artist_highlight]
+
+def display_guess_df():
+    raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
+    styled_df = raw_df.style.apply(highlight_rows, axis=1)
+    st.dataframe(styled_df)
+
+
 
 
 # pick a track
@@ -98,6 +123,14 @@ def main():
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
 
+
+            st.session_state['guess_dictionary'] = {"song": [None] * MAX_ROUNDS,  
+                                                    "artist": [None] * MAX_ROUNDS,  
+                                                    "correct_song": [None] * MAX_ROUNDS,
+                                                    "correct_artist": [None] * MAX_ROUNDS}
+
+
+
             if st.button('Click here to start the game!'):
                 st.session_state['game_state'] = 'guess'
                 st.rerun()
@@ -107,8 +140,13 @@ def main():
         elif st.session_state['game_state'] == 'guess':
             if 'round' not in st.session_state:
                 st.session_state['round'] = 1
-            st.session_state['correct_guess'] = False\
-            
+            st.session_state['correct_guess'] = False
+
+
+            display_guess_df()
+
+
+            current_round = st.session_state['round']
             round_durations_map = {
                 1:2,
                 2:5,
@@ -117,9 +155,9 @@ def main():
                 5:20,
                 6:30
             }
-            snippet_duration = round_durations_map[st.session_state['round']]
+            snippet_duration = round_durations_map[current_round]
             
-            st.markdown(f"Currently on round {st.session_state['round']}/{MAX_ROUNDS}")
+
 
 
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
@@ -127,26 +165,35 @@ def main():
         
             st.write(f"Correct answer for debugging: {st.session_state['song_name']}")
             
-            user_guess = st.text_input("Guess the song name and artist (format: Song - Artist):")
+            song_guess = st.text_input("Guess the Song")
+            artist_guess = st.text_input("Guess the Artist")
             if st.button('Submit Answer'):
-                st.session_state['correct_answer'] = evaluate_answer(user_guess)
+                st.session_state['correct_song_answer'], st.session_state['correct_artist_answer'] = evaluate_answer(song_guess, artist_guess)
+                st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
+                st.session_state['guess_dictionary']['artist'][current_round-1] = artist_guess
+                st.session_state['guess_dictionary']['correct_song'][current_round-1] = st.session_state['correct_song_answer']
+                st.session_state['guess_dictionary']['correct_artist'][current_round-1] = st.session_state['correct_artist_answer']
 
                 # Set state to gameover if this is the last round, or they got it right
-                if st.session_state['round'] == MAX_ROUNDS or st.session_state['correct_answer']:
+                if current_round == MAX_ROUNDS or (st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']):
                     st.session_state['game_state'] = 'game_over'
                     st.rerun()
 
                 else:
                     st.session_state['round'] += 1 
                     st.rerun()
-                    # st.write(f'Wrong answer! Moving on to round {st.session_state["round"]}/{MAX_ROUNDS}')
 
             
 
         elif st.session_state['game_state'] == 'game_over':
 
-            if st.session_state['correct_answer']:
-                st.write('You win! congrats BUDDY')
+            if st.session_state['correct_song_answer'] and not st.session_state['correct_artist_answer']:
+                st.write('You got the song right!')
+                st.write('Maybe if you applied yourself you could get the artist right too')
+            elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
+                st.write('You got the artist but not the song which is just dissapointing honestly')
+            elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
+                st.write( 'congrats BUDDY you won...')
             else:
                 st.write('You lost!!!!!!!!!!!!!!!!')
             if 'round' in st.session_state:
