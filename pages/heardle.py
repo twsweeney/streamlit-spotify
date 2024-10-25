@@ -66,6 +66,12 @@ def main():
         song_data = get_audio_preview(random_song_id)
         st.write(song_data)
 
+        audio_url = song_data['preview_url']
+
+        st.write(audio_url)
+
+        st.audio(audio_url)
+
 
 
 
