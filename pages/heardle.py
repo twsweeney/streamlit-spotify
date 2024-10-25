@@ -87,7 +87,22 @@ def evaluate_answer(song_guess:str, artist_guess:str):
 
     # Check for close matches using fuzzy matching
     song_correct = (fuzz.ratio(clean_song_input, song_answer) >= song_threshold)
-    artist_correct = any(fuzz.ratio(clean_artist_input, artist) >= artist_threshold for artist in clean_artist_list)
+
+    # This will calculate the fuzz ratio for all artists and compare them to the list
+    # If the input is not close to anything in the correct answer then this will return -1
+    # if it is within the threshold, then this will return the index in the artist list with the match
+
+
+    fuzz_ratio_artist_list = [fuzz.ratio(clean_artist_input, artist)  for artist in clean_artist_list]
+    max_fuzz = max(fuzz_ratio_artist_list)
+    max_index = fuzz_ratio_artist_list.index(max_fuzz)
+
+    if max_fuzz < artist_threshold:
+        artist_correct = -1
+    else:
+        artist_correct = max_index
+
+
 
     return song_correct, artist_correct
 
@@ -190,11 +205,23 @@ def main():
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
             if st.button('Submit Answer'):
-                st.session_state['correct_song_answer'], st.session_state['correct_artist_answer'] = evaluate_answer(song_guess, artist_guess)
-                st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
-                st.session_state['guess_dictionary']['artist'][current_round-1] = artist_guess
+                st.session_state['correct_song_answer'], st.session_state['correct_artist_index'] = evaluate_answer(song_guess, artist_guess)
+
+                # this if else logic is introduced so that if a user misspells an artist name or song within the accepted threshold
+                # Then the answer that will be displayed in the summary table will be the correct spelling, not the inputted misspelling
+
+                if st.session_state['correct_song_answer']:
+                    st.session_state['guess_dictionary']['song'][current_round-1] = st.session_state['song_name']
+                else:
+                    st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
                 st.session_state['guess_dictionary']['correct_song'][current_round-1] = st.session_state['correct_song_answer']
-                st.session_state['guess_dictionary']['correct_artist'][current_round-1] = st.session_state['correct_artist_answer']
+
+                if st.session_state['correct_artist_index'] >= 0:
+                    st.session_state['guess_dictionary']['artist'][current_round-1] = st.session_state['artists_name_list'][st.session_state['correct_artist_index']]
+                    st.session_state['guess_dictionary']['correct_artist'][current_round-1] = True
+                else:
+                    st.session_state['guess_dictionary']['correct_artist'][current_round-1] = False
+                
 
                 # Set state to gameover if this is the last round, or they got it right
                 if current_round == MAX_ROUNDS or (st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']):
