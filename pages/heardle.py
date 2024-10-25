@@ -20,7 +20,7 @@ def display_single_playlist_selector(df):
     return selected_playlist_id, selected_playlist_name
 
 
-def get_songs(session:Session, playlist_id:str, current_user_id:str) -> List[str]:
+def get_specific_playlist_songs(session:Session, playlist_id:str, current_user_id:str) -> List[str]:
     get_song_list_query = f'''
         SELECT song_id, p.playlist_id, p.name AS playlist_name
         FROM playlists AS p 
@@ -32,6 +32,34 @@ def get_songs(session:Session, playlist_id:str, current_user_id:str) -> List[str
     song_id_list = [row[0] for row in rows]
     return song_id_list
 
+def get_all_songs(session:Session, current_user_id:str) -> List[str]:
+
+    get_song_list_query = f'''
+        SELECT song_id, p.playlist_id, p.name AS playlist_name
+        FROM playlists AS p 
+        JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
+        WHERE p.app_user_id='{current_user_id}';
+        '''
+    result = session.execute(text(get_song_list_query))
+    rows = result.fetchall()
+    song_id_list = [row[0] for row in rows]
+    return song_id_list
+
+def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
+
+    get_song_list_query = f'''
+        SELECT song_id, p.playlist_id, p.name AS playlist_name
+        FROM playlists AS p 
+        JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
+        WHERE p.app_user_id='{current_user_id}' AND p.owner_id='{current_user_id}';
+        '''
+    result = session.execute(text(get_song_list_query))
+    rows = result.fetchall()
+    song_id_list = [row[0] for row in rows]
+    return song_id_list
+
+
+
 def get_audio_preview(song_id:str) -> str:
     spotify_api = SpotifyAPI()
     spotify_api.initialize_after_auth()
@@ -40,14 +68,28 @@ def get_audio_preview(song_id:str) -> str:
     return track_data
     # st.write(track_data)
 
-def get_song_data(current_user_id:str):
+def get_song_data(current_user_id:str, option):
     session = create_sqlalchemy_session()
     playlist_df = get_playlist_df(session, current_user_id)
 
-    selected_playlist_id, selected_playlist_name = display_single_playlist_selector(playlist_df)
+    # if option == 'Use my liked songs':
 
-    st.markdown(f'Selected playlist: {selected_playlist_name}')
-    song_id_list = get_songs(session=session, playlist_id=selected_playlist_id, current_user_id=current_user_id)
+
+    if option == 'Select a specific playlist':
+        selected_playlist_id, selected_playlist_name = display_single_playlist_selector(playlist_df)
+        st.markdown(f'Selected playlist: {selected_playlist_name}')
+        song_id_list = get_specific_playlist_songs(session=session, playlist_id=selected_playlist_id, current_user_id=current_user_id)
+
+    elif option == 'Use all playlists I have created':
+        st.markdown(f'Using all playlists owned by you')
+        song_id_list = get_all_owned_songs(session=session, current_user_id=current_user_id)
+
+    else:
+        st.markdown(f'Using all playlists you have saved')
+        song_id_list = get_all_songs(session=session, current_user_id=current_user_id)
+
+
+
     random_index = np.random.randint(0, len(song_id_list))
 
     random_song_id = song_id_list[random_index]
@@ -162,7 +204,14 @@ def main():
             st.session_state['game_state'] = 'start'
 
         if st.session_state['game_state'] == 'start':
-            song_data = get_song_data(current_user_id)
+            
+            selectbox_options = [ 'Use all playlists I have created', 'Use all playlists I have saved', 'Select a specific playlist']
+            option = st.selectbox(options=selectbox_options)
+
+
+
+
+            song_data = get_song_data(current_user_id, option)
             st.session_state['audio_url'] = song_data['preview_url']
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
