@@ -141,6 +141,8 @@ def main():
 
 
             if st.button('Click here to start the game!'):
+                st.write('Important note: This snippet is not necessarily the start of the song.\n Spotify creates the snippets and they are usually in the middle of a song.')
+
                 st.session_state['game_state'] = 'guess'
                 st.rerun()
         
@@ -171,9 +173,10 @@ def main():
 
             if st.button(f'Play {snippet_duration} Second Audio Snippet'):
                 play_audio(snippet_duration)
+                st.rerun()
+
         
             st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artists_name_list']}")
-            
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
             if st.button('Submit Answer'):
