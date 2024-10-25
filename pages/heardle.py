@@ -88,18 +88,18 @@ def main():
         snippet_duration = round_durations_map[st.session_state['round']]
         st.write(f"Round {st.session_state.round}: Listening for {snippet_duration} seconds")
 
+        if st.button('Play Audio'):
+            html_audio = f"""
+            <audio id="audio" src="{audio_url}" autoplay></audio>
+            <script>
+            var audio = document.getElementById('audio');
+            audio.play();
+            setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
+            </script>
+            """
 
-        html_audio = f"""
-        <audio id="audio" src="{audio_url}" autoplay></audio>
-        <script>
-        var audio = document.getElementById('audio');
-        audio.play();
-        setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
-        </script>
-        """
-
-        # Embed the HTML audio player in Streamlit without controls
-        st.components.v1.html(html_audio, height=0)
+            # Embed the HTML audio player in Streamlit without controls
+            st.components.v1.html(html_audio, height=0)
 
 
 
