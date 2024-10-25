@@ -4,3 +4,4 @@ plotly
 sqlalchemy
 boto3
 pymysql
+fuzzywuzzy

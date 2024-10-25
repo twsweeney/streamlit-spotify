@@ -3,6 +3,8 @@ from streamlit_utils import *
 import numpy as np 
 from spotify_api.api import SpotifyAPI
 import time
+import re
+from fuzzywuzzy import fuzz
 
 
 def display_single_playlist_selector(df): 
@@ -71,18 +73,25 @@ def play_audio(snippet_duration:int):
 
 def evaluate_answer(song_guess:str, artist_guess:str):
 
-    
+    clean_song_input = re.sub(r'\b(remaster|remastered|feat|ft|version|live)\b', '', song_guess.strip().lower())
 
-    clean_song_input = song_guess.strip().lower()
     clean_artist_input = artist_guess.strip().lower()
 
     song_answer = st.session_state['song_name'].strip().lower()
 
     clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
 
-    artist_correct = clean_artist_input in clean_artist_list
+    # Set thresholds
+    song_threshold = 80  
+    artist_threshold = 80  
 
-    return clean_song_input == song_answer, artist_correct
+    # Check for close matches using fuzzy matching
+    song_correct = (fuzz.ratio(clean_song_input, song_answer) >= song_threshold)
+    artist_correct = any(fuzz.ratio(clean_artist_input, artist) >= artist_threshold for artist in clean_artist_list)
+
+    return song_correct, artist_correct
+
+
 
 def highlight_rows(row):
     # Initialize the highlight list for both song and artist
@@ -121,7 +130,7 @@ def main():
 
 
         st.markdown('# Heardle')
-        st.markdown(f'Currently logged in as: {current_user_display_name}')
+        # st.markdown(f'Currently logged in as: {current_user_display_name}')
 
         if 'game_state' not in st.session_state:
             st.session_state['game_state'] = 'start'
@@ -177,7 +186,7 @@ def main():
                 st.rerun()
 
         
-            st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artists_name_list']}")
+            # st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artists_name_list']}")
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
             if st.button('Submit Answer'):
