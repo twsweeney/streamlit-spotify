@@ -29,11 +29,12 @@ def get_songs(session:Session, playlist_id:str, current_user_id:str) -> List[str
     song_id_list = [row[0] for row in rows]
     return song_id_list
 
-def get_audio_preview(session:Session, song_id:str) -> str:
+def get_audio_preview(song_id:str) -> str:
     spotify_api = SpotifyAPI()
 
     track_data = spotify_api.get_track(song_id)
-    st.write(track_data)
+    return track_data
+    # st.write(track_data)
 
 
 # pick a track
@@ -59,6 +60,12 @@ def main():
         random_index = np.random.randint(0, len(song_id_list))
 
         random_song_id = song_id_list[random_index]
+
+
+        song_data = get_audio_preview(random_song_id)
+        st.write(song_data)
+
+
 
 
 
