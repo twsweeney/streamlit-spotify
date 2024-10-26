@@ -267,38 +267,48 @@ def main():
             # st.write(f"Correct answer for debugging: {st.session_state['song_name']} by {st.session_state['artists_name_list']}")
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
-            if st.button('Submit Answer'):
-                st.session_state['correct_song_answer'], st.session_state['correct_artist_index'] = evaluate_answer(song_guess, artist_guess)
 
-                # this if else logic is introduced so that if a user misspells an artist name or song within the accepted threshold
-                # Then the answer that will be displayed in the summary table will be the correct spelling, not the inputted misspelling
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button('Submit Answer'):
+                    st.session_state['correct_song_answer'], st.session_state['correct_artist_index'] = evaluate_answer(song_guess, artist_guess)
 
-
-                # Check song answer 
-                if st.session_state['correct_song_answer']:
-                    st.session_state['guess_dictionary']['song'][current_round-1] = st.session_state['song_name']
-                else:
-                    st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
-                st.session_state['guess_dictionary']['correct_song'][current_round-1] = st.session_state['correct_song_answer']
+                    # this if else logic is introduced so that if a user misspells an artist name or song within the accepted threshold
+                    # Then the answer that will be displayed in the summary table will be the correct spelling, not the inputted misspelling
 
 
-                # Check artist answer
-                if st.session_state['correct_artist_index'] >= 0:
-                    st.session_state['guess_dictionary']['artist'][current_round-1] = st.session_state['artists_name_list'][st.session_state['correct_artist_index']]
-                    st.session_state['guess_dictionary']['correct_artist'][current_round-1] = True
-                    st.session_state['correct_artist_answer'] = True
-                else:
-                    st.session_state['guess_dictionary']['artist'][current_round-1] = artist_guess
-                    st.session_state['guess_dictionary']['correct_artist'][current_round-1] = False
-                    st.session_state['correct_artist_answer'] = False
+                    # Check song answer 
+                    if st.session_state['correct_song_answer']:
+                        st.session_state['guess_dictionary']['song'][current_round-1] = st.session_state['song_name']
+                    else:
+                        st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
+                    st.session_state['guess_dictionary']['correct_song'][current_round-1] = st.session_state['correct_song_answer']
 
-                # Set state to gameover if this is the last round, or they got it right
-                if current_round == MAX_ROUNDS or (st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']):
+
+                    # Check artist answer
+                    if st.session_state['correct_artist_index'] >= 0:
+                        st.session_state['guess_dictionary']['artist'][current_round-1] = st.session_state['artists_name_list'][st.session_state['correct_artist_index']]
+                        st.session_state['guess_dictionary']['correct_artist'][current_round-1] = True
+                        st.session_state['correct_artist_answer'] = True
+                    else:
+                        st.session_state['guess_dictionary']['artist'][current_round-1] = artist_guess
+                        st.session_state['guess_dictionary']['correct_artist'][current_round-1] = False
+                        st.session_state['correct_artist_answer'] = False
+
+                    # Set state to gameover if this is the last round, or they got it right
+                    if current_round == MAX_ROUNDS or (st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']):
+                        st.session_state['game_state'] = 'game_over'
+                        st.rerun()
+
+                    else:
+                        st.session_state['round'] += 1 
+                        st.rerun()
+            
+            with col2: 
+                if st.button('Give up?'):
+                    if 'round' in st.session_state:
+                        del st.session_state['round']
                     st.session_state['game_state'] = 'game_over'
-                    st.rerun()
-
-                else:
-                    st.session_state['round'] += 1 
                     st.rerun()
 
             
