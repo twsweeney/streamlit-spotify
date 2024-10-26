@@ -162,7 +162,7 @@ def evaluate_answer(song_guess:str, artist_guess:str):
 
     clean_artist_input = artist_guess.strip().lower()
 
-    song_answer = st.session_state['song_name'].strip().lower()
+    song_answer = clean_title(st.session_state['song_name'])
 
     clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
 
