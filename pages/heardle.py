@@ -123,6 +123,19 @@ def evaluate_answer(song_guess:str, artist_guess:str):
 
     clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
 
+
+    # Define regex pattern to match a dash followed by a reasonable year (1900-2099)
+    year_pattern = r'(-\s*(\d{4})\s*(remake|remaster)?)'
+    song_pattern = rf'^(.*?)(\s*{year_pattern})?$'  # Match any title followed by optional dash/year info
+
+    # Match the song guess against the pattern
+    match = re.match(song_pattern, clean_song_input)
+    if match:
+        # Extract matched groups
+        normalized_title = match.group(1).strip() if match.group(1) else ''
+        # Reconstruct the cleaned song input without the year and descriptors
+        clean_song_input = normalized_title.lower()
+
     # Set thresholds
     song_threshold = 80  
     artist_threshold = 80  
@@ -246,8 +259,8 @@ def main():
 
             current_round = st.session_state['round']
             round_durations_map = {
-                1:2,
-                2:5,
+                1:1,
+                2:3,
                 3:10,
                 4:15,
                 5:20,
