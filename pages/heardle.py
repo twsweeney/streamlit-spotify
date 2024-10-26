@@ -152,7 +152,7 @@ def clean_title(title):
             return title[:dash_index].strip()
     
     # Return the cleaned title, stripped of whitespace
-    return title.strip()
+    return title.strip().lower()
 
 
 
