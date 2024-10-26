@@ -217,8 +217,8 @@ def main():
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
 
 
-            st.session_state['guess_dictionary'] = {"song": [None] * MAX_ROUNDS,  
-                                                    "artist": [None] * MAX_ROUNDS,  
+            st.session_state['guess_dictionary'] = {"song": ['          '] * MAX_ROUNDS,  
+                                                    "artist": ['          '] * MAX_ROUNDS,  
                                                     "correct_song": [None] * MAX_ROUNDS,
                                                     "correct_artist": [None] * MAX_ROUNDS}
 
@@ -272,17 +272,22 @@ def main():
                 # this if else logic is introduced so that if a user misspells an artist name or song within the accepted threshold
                 # Then the answer that will be displayed in the summary table will be the correct spelling, not the inputted misspelling
 
+
+                # Check song answer 
                 if st.session_state['correct_song_answer']:
                     st.session_state['guess_dictionary']['song'][current_round-1] = st.session_state['song_name']
                 else:
                     st.session_state['guess_dictionary']['song'][current_round-1] = song_guess 
                 st.session_state['guess_dictionary']['correct_song'][current_round-1] = st.session_state['correct_song_answer']
 
+
+                # Check artist answer
                 if st.session_state['correct_artist_index'] >= 0:
                     st.session_state['guess_dictionary']['artist'][current_round-1] = st.session_state['artists_name_list'][st.session_state['correct_artist_index']]
                     st.session_state['guess_dictionary']['correct_artist'][current_round-1] = True
                     st.session_state['correct_artist_answer'] = True
                 else:
+                    st.session_state['guess_dictionary']['artist'][current_round-1] = artist_guess
                     st.session_state['guess_dictionary']['correct_artist'][current_round-1] = False
                     st.session_state['correct_artist_answer'] = False
 
