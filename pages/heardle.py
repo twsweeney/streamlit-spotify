@@ -80,7 +80,7 @@ def get_song_data(current_user_id:str, option):
         st.markdown(f'Selected playlist: {selected_playlist_name}')
         song_id_list = get_specific_playlist_songs(session=session, playlist_id=selected_playlist_id, current_user_id=current_user_id)
 
-    elif option == 'Use all playlists I have created':
+    elif option == 'Use all playlists owned by me':
         st.markdown(f'Using all playlists owned by you')
         song_id_list = get_all_owned_songs(session=session, current_user_id=current_user_id)
 
@@ -205,7 +205,7 @@ def main():
 
         if st.session_state['game_state'] == 'start':
             
-            selectbox_options = [ 'Use all playlists I have created', 'Use all playlists I have saved', 'Select a specific playlist']
+            selectbox_options = [ 'Use all playlists owned by me', 'Use all playlists I have saved', 'Select a specific playlist']
             option = st.selectbox(label='Where should songs be selected from?',options=selectbox_options)
 
 
