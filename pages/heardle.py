@@ -216,7 +216,7 @@ def main():
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
 
-            fill_string = '-' * 10
+            fill_string = '-' * 50
 
             st.session_state['guess_dictionary'] = {"song": [fill_string] * MAX_ROUNDS,  
                                                     "artist": [fill_string] * MAX_ROUNDS,  
