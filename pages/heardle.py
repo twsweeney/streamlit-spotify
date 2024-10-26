@@ -149,7 +149,7 @@ def clean_title(title):
         # Look for year pattern (4 digits) and remaster/remake
         if re.search(r'\b\d{4}\b.*\b(remaster|remake)\b', suffix, re.IGNORECASE):
             # Return the part before the dash, stripped of whitespace
-            return title[:dash_index].strip()
+            return title[:dash_index].strip().lower()
     
     # Return the cleaned title, stripped of whitespace
     return title.strip().lower()
@@ -163,8 +163,6 @@ def evaluate_answer(song_guess:str, artist_guess:str):
     clean_artist_input = artist_guess.strip().lower()
 
     song_answer = clean_title(st.session_state['song_name'])
-    st.write(f'cleaned input: {clean_song_input}')
-    st.write(f'expected answer: {song_answer}')
 
 
     clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
