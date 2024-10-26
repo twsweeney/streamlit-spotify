@@ -113,28 +113,58 @@ def play_audio(snippet_duration:int):
     # Embed the HTML audio player in Streamlit without controls
     st.components.v1.html(html_audio, height=0)
 
+def clean_title(title):
+    # Convert to lowercase for case-insensitive matching
+    lower_title = title.lower()
+    
+    # Comprehensive pattern for featured artists
+    # Handles: feat., feat, featuring, ft., ft, with, &, x, ×, +
+    import re
+    feat_variations = r"""
+        \s*[\(\[]+                    # Opening bracket/parenthesis with optional spaces
+        (?:                           # Non-capturing group for all the variations
+            feat(?:uring|\.)?\s+|     # feat. featuring, feat
+            ft\.?\s+|                 # ft., ft
+            with\s+|                  # with
+            (?:^|\s+)(?:[x×+&])\s+|  # x, ×, +, & (with spaces)
+        )
+        .*?                          # The artist name(s)
+        [\)\]]+                      # Closing bracket/parenthesis
+        |                            # OR (handle without brackets)
+        \s+(?:feat(?:uring|\.)?\s+|ft\.?\s+|with\s+|(?:[x×+&])\s+).*?$
+    """
+    
+    title = re.sub(feat_variations, '', title, flags=re.IGNORECASE | re.VERBOSE)
+    
+    # Try to find the dash with optional spaces
+    dash_index = lower_title.find(" - ")
+    if dash_index == -1:
+        dash_index = lower_title.find("-")
+    
+    # If we found a dash, check what comes after it
+    if dash_index != -1:
+        # Extract the part after the dash
+        suffix = lower_title[dash_index:]
+        
+        # Look for year pattern (4 digits) and remaster/remake
+        if re.search(r'\b\d{4}\b.*\b(remaster|remake)\b', suffix, re.IGNORECASE):
+            # Return the part before the dash, stripped of whitespace
+            return title[:dash_index].strip()
+    
+    # Return the cleaned title, stripped of whitespace
+    return title.strip()
+
+
+
 def evaluate_answer(song_guess:str, artist_guess:str):
 
-    clean_song_input = re.sub(r'\b(remaster|remastered|feat|ft|version|live)\b', '', song_guess.strip().lower())
+    clean_song_input = clean_title(song_guess)
 
     clean_artist_input = artist_guess.strip().lower()
 
     song_answer = st.session_state['song_name'].strip().lower()
 
     clean_artist_list = [artist.strip().lower() for artist in st.session_state['artists_name_list']]
-
-
-    # Define regex pattern to match a dash followed by a reasonable year (1900-2099)
-    year_pattern = r'(-\s*(\d{4})\s*(remake|remaster)?)'
-    song_pattern = rf'^(.*?)(\s*{year_pattern})?$'  # Match any title followed by optional dash/year info
-
-    # Match the song guess against the pattern
-    match = re.match(song_pattern, clean_song_input)
-    if match:
-        # Extract matched groups
-        normalized_title = match.group(1).strip() if match.group(1) else ''
-        # Reconstruct the cleaned song input without the year and descriptors
-        clean_song_input = normalized_title.lower()
 
     # Set thresholds
     song_threshold = 80  
