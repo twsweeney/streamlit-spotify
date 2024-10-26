@@ -15,12 +15,12 @@ class SpotifyAPI:
         self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
 
         # public_ip = get_ec2_public_ip()
-        public_ip = '18.223.158.104'
-        if public_ip:
-            self.REDIRECT_URI = f"http://{public_ip}:8501/"
-        else:
-            st.error("Could not retrieve public IP.")
-
+        # public_ip = '18.223.158.104'
+        # if public_ip:
+        #     self.REDIRECT_URI = f"http://{public_ip}:8501/"
+        # else:
+        #     st.error("Could not retrieve public IP.")
+        self.REDIRECT_URI = "https://toomeh.dev/"
 
         self.scope = "playlist-read-private"
 
