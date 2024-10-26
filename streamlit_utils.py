@@ -11,33 +11,33 @@ import requests
 from typing import Dict, Any, Tuple, Optional, List
 
 
-def get_secret(secret_name:str) -> Dict[str, Any]:
-    '''Retreives a secret from aws'''
-    region_name = "us-east-2"
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-    except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
-    secret = get_secret_value_response['SecretString']
-    return json.loads(secret)
+# def get_secret(secret_name:str) -> Dict[str, Any]:
+#     '''Retreives a secret from aws'''
+#     region_name = "us-east-2"
+#     # Create a Secrets Manager client
+#     session = boto3.session.Session()
+#     client = session.client(
+#         service_name='secretsmanager',
+#         region_name=region_name
+#     )
+#     try:
+#         get_secret_value_response = client.get_secret_value(
+#             SecretId=secret_name
+#         )
+#     except ClientError as e:
+#         # For a list of exceptions thrown, see
+#         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+#         raise e
+#     secret = get_secret_value_response['SecretString']
+#     return json.loads(secret)
 def create_sqlalchemy_session() -> Session:
     '''Creates a sqlalchemy session by connecting to the aws database'''
-    database_secret_name = 'rds!db-60329a4c-380a-4809-bcf5-2689a1a604c0'
-    database_credentials = get_secret(database_secret_name)
-    username = database_credentials['username']
-    password = database_credentials['password']
-    dbname = 'spotify_db'
-    endpoint = 'streamlit-spotify-db.cv2w6ig8qy6y.us-east-2.rds.amazonaws.com'
+
+    username = st.secrets['database']['username']
+    password = st.secrets['database']['password']
+    dbname = st.secrets['database']['name']
+    endpoint = st.secrets['database']['endpoint']
+
     engine = create_engine(f'mysql+pymysql://{username}:{password}@{endpoint}/{dbname}')
     Session = sessionmaker(bind=engine)
     session = Session()

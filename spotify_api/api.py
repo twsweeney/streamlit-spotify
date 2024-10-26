@@ -11,12 +11,14 @@ class SpotifyAPI:
     def __init__(self) -> None:
         '''Initializes the SpotifyAPI class with necessary credentials and prepares for OAuth flow.'''
 
-        self.CLIENT_ID = '5ff1fe753a2b4587be0ff3e890cea92f'
-        self.CLIENT_SECRET = get_secret('spotify_client_secret')['spotify_client_secret']
+        self.CLIENT_ID = st.secrets['spotify']['client_id']
+        self.CLIENT_SECRET = st.secrets['spotify']['client_secret']
 
         # public_ip = get_ec2_public_ip()
-        public_ip = '18.223.158.104'
+        # public_ip = '18.223.158.104'
+        public_ip = 'spotify-twsweeney.streamlit.app'
         if public_ip:
+
             self.REDIRECT_URI = f"http://{public_ip}:8501/"
         else:
             st.error("Could not retrieve public IP.")
