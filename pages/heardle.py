@@ -308,6 +308,12 @@ def main():
                 if st.button('Give up?'):
                     if 'round' in st.session_state:
                         del st.session_state['round']
+
+                    if 'correct_song_answer' not in st.session_state:
+                        st.session_state['correct_song_answer'] = False
+                    if 'correct_artist_answer' not in st.session_state:
+                        st.session_state['correct_artist_answer'] = False
+                    
                     st.session_state['game_state'] = 'game_over'
                     st.rerun()
 
