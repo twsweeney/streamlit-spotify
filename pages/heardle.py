@@ -100,32 +100,13 @@ def get_song_data(current_user_id:str, option):
 
 def play_audio(snippet_duration:int):
     html_audio = f"""
-    <audio id="audio" src="{st.session_state['audio_url']}" preload="auto"></audio>
+    <audio id="audio" src="{st.session_state['audio_url']}" autoplay></audio>
     <script>
-        var audio = document.getElementById('audio');
-        
-        // Wait for the audio to load before playing
-        audio.oncanplaythrough = function() {{
-            audio.currentTime = 0; // Start from beginning
-            audio.play().then(() => {{
-                setTimeout(() => {{
-                    audio.pause();
-                }}, {snippet_duration * 1000});
-            }}).catch(error => {{
-                console.log("Playback failed: " + error);
-            }});
-        }};
+    var audio = document.getElementById('audio');
+    audio.play();
+    setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
     </script>
     """
-
-    # html_audio = f"""
-    # <audio id="audio" src="{st.session_state['audio_url']}" autoplay></audio>
-    # <script>
-    # var audio = document.getElementById('audio');
-    # audio.play();
-    # setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000}); // Stop after {snippet_duration} seconds
-    # </script>
-    # """
 
     # Embed the HTML audio player in Streamlit without controls
     st.components.v1.html(html_audio, height=0)
