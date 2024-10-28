@@ -100,17 +100,31 @@ def get_song_data(current_user_id:str, option):
 
 def play_audio(snippet_duration:int):
     html_audio = f"""
-        <audio id="audio" src="{st.session_state['audio_url']}"></audio>
-        <script>
-            var audio = document.getElementById('audio');
-            audio.onloadedmetadata = function() {{
+    <audio id="audio" src="{st.session_state['audio_url']}" preload="auto"></audio>
+    <script>
+        var audio = document.getElementById('audio');
+        
+        // Try to play audio silently first to "prime" the playback functionality
+        audio.volume = 0;
+        audio.play().then(() => {{
+            audio.pause();
+            audio.volume = 1; // Restore the volume
+            
+            // Start the actual playback with timing control
+            setTimeout(() => {{
+                audio.currentTime = 0; // Reset to start
+                audio.play();
+                
                 setTimeout(() => {{
-                    audio.play();
-                    setTimeout(() => {{ audio.pause(); }}, {snippet_duration * 1000});
-                }}, 100); // 100ms delay before playback to ensure buffering
-            }};
-        </script>
-        """
+                    audio.pause();
+                }}, {snippet_duration * 1000});
+                
+            }}, 100); // Delay for consistent playback
+        }}).catch(error => {{
+            console.log("Silent play attempt failed: " + error);
+        }});
+    </script>
+    """
 
     # html_audio = f"""
     # <audio id="audio" src="{st.session_state['audio_url']}" autoplay></audio>
