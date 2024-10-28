@@ -290,10 +290,10 @@ def main():
 
             current_round = st.session_state['round']
             round_durations_map = {
-                1:1,
+                1:1.5,
                 2:3,
-                3:10,
-                4:15,
+                3:8,
+                4:14,
                 5:20,
                 6:30
             }
@@ -302,9 +302,9 @@ def main():
 
 
 
-            if st.button(f'Play {snippet_duration} Second Audio Snippet'):
+            if st.button(f'Play Audio Snippet'):
                 play_audio(snippet_duration)
-                time.sleep(snippet_duration + 0.2)
+                time.sleep(snippet_duration + 0.5)
                 st.rerun()
 
         
