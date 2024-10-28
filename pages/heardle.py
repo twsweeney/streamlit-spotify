@@ -104,25 +104,17 @@ def play_audio(snippet_duration:int):
     <script>
         var audio = document.getElementById('audio');
         
-        // Try to play audio silently first to "prime" the playback functionality
-        audio.volume = 0;
-        audio.play().then(() => {{
-            audio.pause();
-            audio.volume = 1; // Restore the volume
-            
-            // Start the actual playback with timing control
-            setTimeout(() => {{
-                audio.currentTime = 0; // Reset to start
-                audio.play();
-                
+        // Wait for the audio to load before playing
+        audio.oncanplaythrough = function() {{
+            audio.currentTime = 0; // Start from beginning
+            audio.play().then(() => {{
                 setTimeout(() => {{
                     audio.pause();
                 }}, {snippet_duration * 1000});
-                
-            }}, 100); // Delay for consistent playback
-        }}).catch(error => {{
-            console.log("Silent play attempt failed: " + error);
-        }});
+            }}).catch(error => {{
+                console.log("Playback failed: " + error);
+            }});
+        }};
     </script>
     """
 
