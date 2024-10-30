@@ -331,9 +331,15 @@ def main():
             song_guess = st.text_input("Guess the Song")
             artist_guess = st.text_input("Guess the Artist")
 
+
+            if not song_guess and not artist_guess:
+                button_text = 'Skip to the next round'
+            else:
+                button_text = 'Submit Answer'
+
             col1, col2 = st.columns(2)
             with col1:
-                if st.button('Submit Answer'):
+                if st.button(button_text):
                     st.session_state['correct_song_answer'], st.session_state['correct_artist_index'] = evaluate_answer(song_guess, artist_guess)
 
                     # this if else logic is introduced so that if a user misspells an artist name or song within the accepted threshold
@@ -402,7 +408,8 @@ def main():
                 del st.session_state['round']
             
             session = create_sqlalchemy_session()
-            playlists_with_song = get_matching_playlists(session=session, song_id=st.session_state['song_id'])
+            playlists_with_song = get_matching_playlists(session=session, song_id=st.session_state['song_id'],
+                                                         current_user_id=st.session_state['current_user_id'])
 
             with st.expander('Click to see the playlists that this song appears on'):
                 for playlist in playlists_with_song:
