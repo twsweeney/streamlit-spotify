@@ -400,11 +400,11 @@ def main():
                 st.write('You got the artist but not the song :(')
                 display_correct_answer()
             elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
-                st.write( f'You Win!! You guessed correctly in {st.session_state["round"]} guesses!')
+                st.write( f'You Win!!')
                 display_correct_answer()
                 
             else:
-                st.write('You lost!!!!!!!!!!!!!!!!')
+                st.write('You lost!!!!!!!!!!!')
                 display_correct_answer()
             if 'round' in st.session_state:
                 del st.session_state['round']
@@ -413,7 +413,7 @@ def main():
             playlists_with_song_df = get_matching_playlists(session=session, song_id=st.session_state['song_id'],
                                                          current_user_id=st.session_state['user_id'])
 
-            with st.expander('Click to see the playlists that this song appears on'):
+            with st.expander('Click to see the playlists that this song appears on and when it was added'):
                 
                 st.write(playlists_with_song_df)
 
