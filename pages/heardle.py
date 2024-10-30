@@ -74,7 +74,7 @@ def get_audio_preview(song_id:str) -> str:
     track_data = spotify_api.get_track(song_id)
     return track_data
 
-def get_song_data(session:Session, current_user_id:str, option:str) -> str, Dict :
+def get_song_data(session:Session, current_user_id:str, option:str):
     playlist_df = get_playlist_df(session, current_user_id)
     if option == 'Select a specific playlist':
         selected_playlist_id, selected_playlist_name = display_single_playlist_selector(playlist_df)
