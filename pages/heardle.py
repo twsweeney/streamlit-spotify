@@ -248,8 +248,6 @@ def main():
         current_user_display_name = st.session_state["display_name"]
         MAX_ROUNDS = 6
         base_dir = os.path.dirname(__file__)
-        st.write(base_dir)
-        st.write(os.path.join(base_dir, 'assets/heardle/heardle_rules.txt'))
 
         st.markdown('# Heardle')
         # st.markdown(f'Currently logged in as: {current_user_display_name}')
@@ -260,7 +258,7 @@ def main():
         if st.session_state['game_state'] == 'start':
 
             with st.expander('Click here to see the rules'):
-                heardle_rules_path = '/home/ubuntu/streamlit-spotify/assets/heardle/heardle_rules.txt'
+                heardle_rules_path = '/home/assets/heardle/heardle_rules.txt'
                 
 
                 with open(heardle_rules_path, 'r') as file:
