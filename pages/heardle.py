@@ -7,7 +7,9 @@ import re
 from fuzzywuzzy import fuzz
 
 
-def display_single_playlist_selector(df): 
+### Start Functions
+
+def display_single_playlist_selector(df:pd.DataFrame) -> tuple[str, str]: 
     filtered_df = df.copy()
     selected_playlist_name = st.selectbox(
         "Compare Playlist:",
@@ -61,46 +63,23 @@ def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
     session.close()
     return song_id_list
 
-def get_matching_playlists(session:Session, current_user_id:str, song_id:str) -> List[str]:
-
-    get_playlists_query = f'''
-        SELECT p.name AS playlist_name, ps.added_date
-        FROM playlists AS p 
-        JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
-        WHERE p.app_user_id='{current_user_id}' AND ps.song_id='{song_id}';
-        '''
-    result = session.execute(text(get_playlists_query))
-    rows = result.fetchall()
-    playlist_list = [row[0] for row in rows]
-
-
-    playlist_df = pd.DataFrame(rows, columns=result.keys())
-    session.close()
-    return playlist_df
 
 
 
+# guess functions
 
 def get_audio_preview(song_id:str) -> str:
     spotify_api = SpotifyAPI()
     spotify_api.initialize_after_auth()
-
     track_data = spotify_api.get_track(song_id)
     return track_data
-    # st.write(track_data)
 
-def get_song_data(session:Session, current_user_id:str, option):
-    
+def get_song_data(session:Session, current_user_id:str, option:str) -> str, Dict :
     playlist_df = get_playlist_df(session, current_user_id)
-
-    # if option == 'Use my liked songs':
-
-
     if option == 'Select a specific playlist':
         selected_playlist_id, selected_playlist_name = display_single_playlist_selector(playlist_df)
         st.markdown(f'Selected playlist: {selected_playlist_name}')
         song_id_list = get_specific_playlist_songs(session=session, playlist_id=selected_playlist_id, current_user_id=current_user_id)
-
     elif option == 'Use all playlists owned by me':
         st.markdown(f'Using all playlists owned by you')
         song_id_list = get_all_owned_songs(session=session, current_user_id=current_user_id)
@@ -108,14 +87,8 @@ def get_song_data(session:Session, current_user_id:str, option):
     else:
         st.markdown(f'Using all playlists you have saved')
         song_id_list = get_all_songs(session=session, current_user_id=current_user_id)
-
-
-
     random_index = np.random.randint(0, len(song_id_list))
-
     random_song_id = song_id_list[random_index]
-
-
     song_data = get_audio_preview(random_song_id)
     return random_song_id, song_data
 
@@ -173,7 +146,10 @@ def clean_title(title):
     # Return the cleaned title, stripped of whitespace
     return title.strip().lower()
 
-
+def display_guess_df():
+    raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
+    styled_df = raw_df.style.apply(highlight_rows, axis=1)
+    st.dataframe(styled_df)
 
 def evaluate_answer(song_guess:str, artist_guess:str):
 
@@ -211,8 +187,6 @@ def evaluate_answer(song_guess:str, artist_guess:str):
 
     return song_correct, artist_correct
 
-
-
 def highlight_rows(row):
     # Initialize the highlight list for both song and artist
     highlights = [''] * len(row)  # Create a list of empty strings for each column
@@ -231,10 +205,24 @@ def highlight_rows(row):
     
     return highlights  # Return the list of styles
 
-def display_guess_df():
-    raw_df = pd.DataFrame(st.session_state['guess_dictionary'])
-    styled_df = raw_df.style.apply(highlight_rows, axis=1)
-    st.dataframe(styled_df)
+# Game over functions
+
+def get_matching_playlists(session:Session, current_user_id:str, song_id:str) -> List[str]:
+
+    get_playlists_query = f'''
+        SELECT p.name AS playlist_name, ps.added_date
+        FROM playlists AS p 
+        JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
+        WHERE p.app_user_id='{current_user_id}' AND ps.song_id='{song_id}';
+        '''
+    result = session.execute(text(get_playlists_query))
+    rows = result.fetchall()
+    playlist_list = [row[0] for row in rows]
+
+
+    playlist_df = pd.DataFrame(rows, columns=result.keys())
+    session.close()
+    return playlist_df
 
 def display_correct_answer():
     n_artists = len(st.session_state['artists_name_list'])
@@ -267,9 +255,18 @@ def main():
             st.session_state['game_state'] = 'start'
 
         if st.session_state['game_state'] == 'start':
+
+            with st.dropdown('Click here to see the rules'):
+                heardle_rules_path = '../assets/heardle/heardle_rules.txt'
+
+                with open(heardle_rules_path, 'r') as file:
+                    file_contents = file.read()
+
+                st.text(file_contents)
+
             
             selectbox_options = [ 'Use all playlists owned by me', 'Use all playlists I have saved', 'Select a specific playlist']
-            option = st.selectbox(label='Where should songs be selected from?',options=selectbox_options)
+            option = st.selectbox(label='Where should the random song be selected from?',options=selectbox_options)
 
             
             session = create_sqlalchemy_session()
@@ -281,13 +278,13 @@ def main():
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
             st.session_state['song_id'] = song_id
 
-
+            # initialize the dictionary of guesses
             fill_string = '-' * 50
-
             st.session_state['guess_dictionary'] = {"song": [fill_string] * MAX_ROUNDS,  
                                                     "artist": [fill_string] * MAX_ROUNDS,  
                                                     "correct_song": [None] * MAX_ROUNDS,
                                                     "correct_artist": [None] * MAX_ROUNDS}
+
 
 
             st.write('Important note: This snippet is not necessarily the start of the song.\n Spotify creates the snippets and they are usually in the middle of a song.')

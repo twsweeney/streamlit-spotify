@@ -1,0 +1,13 @@
+This is a recreation of the game "Heardle" using your Spotify library. 
+
+On the following screen you will click to play an audio snippet. The goal of the game is to
+guess the name of the song and artist who made it. 
+
+You will have 6 guesses to figure out the song. In each round you can play a longer snippet of 
+the song. In round 1 you will only have 1.5 seconds of the song to identify it with. In round 
+6 you will have 30 seconds of the song. 
+
+
+
+
+Good luck! 
