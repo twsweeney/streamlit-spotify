@@ -397,7 +397,7 @@ def main():
                 st.write('You got the artist but not the song :(')
                 display_correct_answer()
             elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
-                st.write( f'You Win!! You guessed correctly in {st.session_state['round']} guesses!')
+                st.write( f'You Win!! You guessed correctly in {st.session_state["round"]} guesses!')
                 display_correct_answer()
                 
             else:
