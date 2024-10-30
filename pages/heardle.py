@@ -256,7 +256,7 @@ def main():
 
         if st.session_state['game_state'] == 'start':
 
-            with st.dropdown('Click here to see the rules'):
+            with st.expander('Click here to see the rules'):
                 heardle_rules_path = '../assets/heardle/heardle_rules.txt'
 
                 with open(heardle_rules_path, 'r') as file:
