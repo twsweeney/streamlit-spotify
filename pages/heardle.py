@@ -114,7 +114,7 @@ def get_song_data(session:Session, current_user_id:str, option):
 
 
     song_data = get_audio_preview(random_song_id)
-    return song_data
+    return random_song_id, song_data
 
 def play_audio(snippet_duration:int):
     html_audio = f"""
@@ -272,11 +272,11 @@ def main():
             session = create_sqlalchemy_session()
 
 
-            song_data = get_song_data(session, current_user_id, option)
+            song_id, song_data = get_song_data(session, current_user_id, option)
             st.session_state['audio_url'] = song_data['preview_url']
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
-            st.session_state['song_id'] = song_data['song_id']
+            st.session_state['song_id'] = song_id
 
 
             fill_string = '-' * 50
