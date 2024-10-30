@@ -5,6 +5,7 @@ from spotify_api.api import SpotifyAPI
 import time
 import re
 from fuzzywuzzy import fuzz
+import os
 
 
 ### Start Functions
@@ -247,6 +248,7 @@ def main():
         current_user_display_name = st.session_state["display_name"]
         MAX_ROUNDS = 6
 
+        st.write(os.getcwd())
 
         st.markdown('# Heardle')
         # st.markdown(f'Currently logged in as: {current_user_display_name}')
@@ -258,6 +260,7 @@ def main():
 
             with st.expander('Click here to see the rules'):
                 heardle_rules_path = '/home/ubuntu/streamlit-spotify/assets/heardle/heardle_rules.txt'
+                
 
                 with open(heardle_rules_path, 'r') as file:
                     file_contents = file.read()
