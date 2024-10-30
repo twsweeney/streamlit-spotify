@@ -247,8 +247,9 @@ def main():
         current_user_id = st.session_state['user_id']
         current_user_display_name = st.session_state["display_name"]
         MAX_ROUNDS = 6
-
-        st.write(os.getcwd())
+        base_dir = os.path.dirname(__file__)
+        st.write(base_dir)
+        st.write(os.path.join(base_dir, 'assets/heardle/heardle_rules.txt'))
 
         st.markdown('# Heardle')
         # st.markdown(f'Currently logged in as: {current_user_display_name}')
