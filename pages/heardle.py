@@ -391,16 +391,15 @@ def main():
         elif st.session_state['game_state'] == 'game_over':
 
             if st.session_state['correct_song_answer'] and not st.session_state['correct_artist_answer']:
-                st.write('You got the song right!')
-                st.write('Maybe if you applied yourself you could get the artist right too')
+                st.write('You got the song right, but not the artist :(')
                 display_correct_answer()
             elif not st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
-                st.write('You got the artist but not the song which is just dissapointing honestly')
+                st.write('You got the artist but not the song :(')
                 display_correct_answer()
             elif st.session_state['correct_song_answer'] and st.session_state['correct_artist_answer']:
-                st.write( 'congrats BUDDY you won...')
+                st.write( f'You Win!! You guessed correctly in {st.session_state['round']} guesses!')
                 display_correct_answer()
-                st.write('but u already knew that... dont get a big head about this')
+                
             else:
                 st.write('You lost!!!!!!!!!!!!!!!!')
                 display_correct_answer()
@@ -409,7 +408,7 @@ def main():
             
             session = create_sqlalchemy_session()
             playlists_with_song = get_matching_playlists(session=session, song_id=st.session_state['song_id'],
-                                                         current_user_id=st.session_state['current_user_id'])
+                                                         current_user_id=st.session_state['user_id'])
 
             with st.expander('Click to see the playlists that this song appears on'):
                 for playlist in playlists_with_song:
