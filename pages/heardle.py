@@ -64,7 +64,7 @@ def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
 def get_matching_playlists(session:Session, current_user_id:str, song_id:str) -> List[str]:
 
     get_playlists_query = f'''
-        SELECT p.name AS playlist_name
+        SELECT p.name AS playlist_name, p.added_date
         FROM playlists AS p 
         JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
         WHERE p.app_user_id='{current_user_id}' AND ps.song_id='{song_id}';
@@ -72,8 +72,11 @@ def get_matching_playlists(session:Session, current_user_id:str, song_id:str) ->
     result = session.execute(text(get_playlists_query))
     rows = result.fetchall()
     playlist_list = [row[0] for row in rows]
+
+
+    playlist_df = pd.DataFrame(rows, columns=result.keys())
     session.close()
-    return playlist_list
+    return playlist_df
 
 
 
@@ -407,12 +410,12 @@ def main():
                 del st.session_state['round']
             
             session = create_sqlalchemy_session()
-            playlists_with_song = get_matching_playlists(session=session, song_id=st.session_state['song_id'],
+            playlists_with_song_df = get_matching_playlists(session=session, song_id=st.session_state['song_id'],
                                                          current_user_id=st.session_state['user_id'])
 
             with st.expander('Click to see the playlists that this song appears on'):
-                for playlist in playlists_with_song:
-                    st.write(playlist)
+                
+                st.write(playlists_with_song_df)
 
             if st.button('Click here to restart and play again'):
                 st.session_state['game_state'] = 'start'
