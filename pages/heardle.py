@@ -64,7 +64,7 @@ def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
 def get_matching_playlists(session:Session, current_user_id:str, song_id:str) -> List[str]:
 
     get_playlists_query = f'''
-        SELECT p.name AS playlist_name, p.added_date
+        SELECT p.name AS playlist_name, ps.added_date
         FROM playlists AS p 
         JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
         WHERE p.app_user_id='{current_user_id}' AND ps.song_id='{song_id}';
