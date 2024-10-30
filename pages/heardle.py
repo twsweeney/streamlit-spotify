@@ -258,13 +258,14 @@ def main():
         if st.session_state['game_state'] == 'start':
 
             with st.expander('Click here to see the rules'):
+                # ok for some reason streamlit views the root of the github repo as /home/
                 heardle_rules_path = '/home/assets/heardle/heardle_rules.txt'
                 
 
                 with open(heardle_rules_path, 'r') as file:
                     file_contents = file.read()
 
-                st.text(file_contents)
+                st.markdown(f"```\n{file_contents}\n```")
 
             
             selectbox_options = [ 'Use all playlists owned by me', 'Use all playlists I have saved', 'Select a specific playlist']
