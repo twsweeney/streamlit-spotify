@@ -30,6 +30,7 @@ def get_specific_playlist_songs(session:Session, playlist_id:str, current_user_i
     result = session.execute(text(get_song_list_query))
     rows = result.fetchall()
     song_id_list = [row[0] for row in rows]
+    session.close()
     return song_id_list
 
 def get_all_songs(session:Session, current_user_id:str) -> List[str]:
@@ -43,6 +44,7 @@ def get_all_songs(session:Session, current_user_id:str) -> List[str]:
     result = session.execute(text(get_song_list_query))
     rows = result.fetchall()
     song_id_list = [row[0] for row in rows]
+    session.close()
     return song_id_list
 
 def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
@@ -56,7 +58,23 @@ def get_all_owned_songs(session:Session, current_user_id:str) -> List[str]:
     result = session.execute(text(get_song_list_query))
     rows = result.fetchall()
     song_id_list = [row[0] for row in rows]
+    session.close()
     return song_id_list
+
+def get_matching_playlists(session:Session, current_user_id:str, song_id:str) -> List[str]:
+
+    get_playlists_query = f'''
+        SELECT p.name AS playlist_name
+        FROM playlists AS p 
+        JOIN playlist_songs AS ps ON p.playlist_id=ps.playlist_id
+        WHERE p.app_user_id='{current_user_id}' AND ps.song_id='{song_id}';
+        '''
+    result = session.execute(text(get_playlists_query))
+    rows = result.fetchall()
+    playlist_list = [row[0] for row in rows]
+    session.close()
+    return playlist_list
+
 
 
 
@@ -68,8 +86,8 @@ def get_audio_preview(song_id:str) -> str:
     return track_data
     # st.write(track_data)
 
-def get_song_data(current_user_id:str, option):
-    session = create_sqlalchemy_session()
+def get_song_data(session:Session, current_user_id:str, option):
+    
     playlist_df = get_playlist_df(session, current_user_id)
 
     # if option == 'Use my liked songs':
@@ -117,7 +135,7 @@ def clean_title(title):
     
     # Comprehensive pattern for featured artists
     # Handles: feat., feat, featuring, ft., ft, with, &, x, ×, +
-    import re
+    
     feat_variations = r"""
         \s*[\(\[]+                    # Opening bracket/parenthesis with optional spaces
         (?:                           # Non-capturing group for all the variations
@@ -250,13 +268,16 @@ def main():
             selectbox_options = [ 'Use all playlists owned by me', 'Use all playlists I have saved', 'Select a specific playlist']
             option = st.selectbox(label='Where should songs be selected from?',options=selectbox_options)
 
+            
+            session = create_sqlalchemy_session()
 
 
-
-            song_data = get_song_data(current_user_id, option)
+            song_data = get_song_data(session, current_user_id, option)
             st.session_state['audio_url'] = song_data['preview_url']
             st.session_state['song_name'] = song_data['name']
             st.session_state['artists_name_list'] = [artist['name'] for artist in song_data['artists']]
+            st.session_state['song_id'] = song_data['song_id']
+
 
             fill_string = '-' * 50
 
@@ -379,9 +400,17 @@ def main():
                 display_correct_answer()
             if 'round' in st.session_state:
                 del st.session_state['round']
+            
+            session = create_sqlalchemy_session()
+            playlists_with_song = get_matching_playlists(session=session, song_id=st.session_state['song_id'])
+
+            with st.expander('Click to see the playlists that this song appears on'):
+                for playlist in playlists_with_song:
+                    st.write(playlist)
 
             if st.button('Click here to restart and play again'):
                 st.session_state['game_state'] = 'start'
+                
                 st.rerun()
 
 
